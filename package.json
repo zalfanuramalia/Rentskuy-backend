@@ -1,5 +1,5 @@
 {
-  "name": "fw5-backend-beginner",
+  "name": "backend-beginner-latihan",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -15,6 +15,7 @@
     "mysql": "github:mysqljs/mysql"
   },
   "devDependencies": {
+    "eslint": "^8.7.0",
     "nodemon": "^2.0.15"
   }
 }
