@@ -1,5 +1,6 @@
 const vehicleModel = require('../models/vehicles');
 
+
 const getVehicles = (req, res)=>{
     vehicleModel.getVehicles(result =>{
         return res.json({
@@ -33,7 +34,12 @@ const patchVehicle = (req, res)=>{
     const {id} =req.params;
     const data = {
         merk: req.body.merk,
-        price: req.body.price
+        price: req.body.price,
+        location: req.body.location,
+        capacity: req.body.capacity,
+        can_prepayment: req.body.can_prepayment,
+        isAvailable: req.body.isAvailable,
+        reservation: req.body.reservation
     };
     const ress = (result) =>{
         if (result.affectedRows == 1){
@@ -77,7 +83,7 @@ const delVehicle = (req, res) => {
             });
         }
     };
-    vehicleModel.getVehicle(id, process);
+    vehicleModel.delVehicle(id, process);
 };
 
 const postVehicle = (req, res) => {
@@ -85,9 +91,11 @@ const postVehicle = (req, res) => {
         id: res.length + 1,
         merk: req.body.merk,
         price: req.body.price,
-        color: req.body.color,
-        year: req.body.year,
-        isAvailable: req.body.isAvailable
+        location: req.body.location,
+        capacity: req.body.capacity,
+        can_prepayment: req.body.can_prepayment,
+        isAvailable: req.body.isAvailable,
+        reservation: req.body.reservation
     };
     vehicleModel.postVehicle(data1, (result) =>{
         if (result.affectedRows == 1){
@@ -104,6 +112,7 @@ const postVehicle = (req, res) => {
         
     }); 
 };
+
 
 
 module.exports = {getVehicles, getVehicle, patchVehicle, delVehicle, postVehicle};
