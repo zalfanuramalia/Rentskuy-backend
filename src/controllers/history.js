@@ -95,4 +95,23 @@ const dataHistory = (req, res) => {
     });
 };
 
-module.exports = {postHistory, delHistory, patchHistory, dataHistory};
+const popularHistory = (req, res) => {
+    const popular = res.popular;
+    const maxPopular = Math.max.apply(null, popular);
+    historyModel.popularHistory(maxPopular, () => {
+        if (maxPopular){
+            return res.send({
+                success: true,
+                message: 'Popular in Town',
+                result: maxPopular
+            });
+        } else {
+            return res.send({
+                success: false,
+                message: 'Vehicle not Popular'
+            });
+        }       
+    });
+};
+
+module.exports = {postHistory, delHistory, patchHistory, dataHistory, popularHistory};

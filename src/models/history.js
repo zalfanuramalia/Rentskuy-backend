@@ -27,3 +27,10 @@ exports.dataHistory = (cb) => {
         cb(res);
     });
 };
+
+exports.popularHistory = (cb) => {
+    db.query('SELECT popular FROM history', (err, res) => {
+        if (err) throw err;
+        cb(res);
+    });
+};
