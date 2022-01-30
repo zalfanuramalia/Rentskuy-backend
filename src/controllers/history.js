@@ -6,7 +6,6 @@ const postHistory = (req, res) => {
         return: req.body.return,
         prepayment: req.body.prepayment,
         new_arrival: req.body.new_arrival,
-        popular: req.body.popular
     };
     historyModel.postHistory(data2, (result) =>{
         if (result.affectedRows == 1){
@@ -59,7 +58,6 @@ const patchHistory = (req, res)=>{
         return: req.body.return,
         prepayment: req.body.prepayment,
         new_arrival: req.body.new_arrival,
-        popular: req.body.popular
     };
     const ress = (result) =>{
         if (result.affectedRows == 1){
@@ -95,23 +93,4 @@ const dataHistory = (req, res) => {
     });
 };
 
-const popularHistory = (req, res) => {
-    const popular = res.popular;
-    const maxPopular = Math.max.apply(null, popular);
-    historyModel.popularHistory(maxPopular, () => {
-        if (maxPopular){
-            return res.send({
-                success: true,
-                message: 'Popular in Town',
-                result: maxPopular
-            });
-        } else {
-            return res.send({
-                success: false,
-                message: 'Vehicle not Popular'
-            });
-        }       
-    });
-};
-
-module.exports = {postHistory, delHistory, patchHistory, dataHistory, popularHistory};
+module.exports = {postHistory, delHistory, patchHistory, dataHistory};

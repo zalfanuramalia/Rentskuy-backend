@@ -39,7 +39,7 @@ const patchVehicle = (req, res)=>{
         capacity: req.body.capacity,
         can_prepayment: req.body.can_prepayment,
         isAvailable: req.body.isAvailable,
-        reservation: req.body.reservation
+        popularity: req.body.popularity
     };
     const ress = (result) =>{
         if (result.affectedRows == 1){
@@ -95,7 +95,8 @@ const postVehicle = (req, res) => {
         capacity: req.body.capacity,
         can_prepayment: req.body.can_prepayment,
         isAvailable: req.body.isAvailable,
-        reservation: req.body.reservation
+        reservation: req.body.reservation,
+        popularity: req.body.popularity
     };
     vehicleModel.postVehicle(data1, (result) =>{
         if (result.affectedRows == 1){

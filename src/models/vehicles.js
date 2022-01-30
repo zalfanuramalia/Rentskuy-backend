@@ -15,7 +15,7 @@ exports.getVehicle = (id, cb) => {
 };
 
 exports.patchVehicle = (data, id, cb) => {
-    db.query('UPDATE vehicles SET merk = ?, price = ?, location = ?, capacity = ?, can_prepayment = ?, isAvailable = ?, reservation = ? WHERE id = ?', [data.merk, data.price, data.location, data.capacity, data.can_prepayment, data.isAvailable, data.reservation, id], (error, res) => {
+    db.query('UPDATE vehicles SET merk = ?, price = ?, location = ?, capacity = ?, can_prepayment = ?, isAvailable = ?, popularity = ? WHERE id = ?', [data.merk, data.price, data.location, data.capacity, data.can_prepayment, data.isAvailable, data.popularity, id], (error, res) => {
         if (error) throw error;
         cb(res);
     });
@@ -29,7 +29,7 @@ exports.delVehicle = (id, cb) => {
 };
 
 exports.postVehicle = (data1, cb) => {
-    db.query('INSERT INTO vehicles (merk, price, location, can_prepayment, isAvailable, reservation) VALUES (? , ? , ? , ? , ? , ? , ?)',[data1.merk, data1.price, data1.clocation, data1.capacity, data1.can_prepayment, data1.isAvailable, data1.reservation], (error, res) => {
+    db.query('INSERT INTO vehicles (merk, price, location, can_prepayment, isAvailable, popularity) VALUES (? , ? , ? , ? , ? , ? , ?)',[data1.merk, data1.price, data1.clocation, data1.capacity, data1.can_prepayment, data1.isAvailable, data1.popularity], (error, res) => {
         if (error) throw error;
         cb(res);
     });
