@@ -47,25 +47,28 @@ const postUser = (req, res) => {
 const delUser = (req, res) => {
     const {id} = req.params;
     const process = (result) => {
-        if (result.length > 0){
+        if (result.affectedRows == 1){
             const ress = (result) =>{
-                if(result.affectedRows == 1){
-                    return res.send({
-                        success: true,
-                        message : 'Data User was Delete'
-                    });
-                } else {
+                if(result.length > 0){
                     return res.status(500).send({
                         success: false,
-                        message : 'Data User failed to Delete'
+                        message : 'User failed to Delete',
+                        result
+                    });
+                } else {
+                    return res.send({
+                        success: true,
+                        message : 'User was Delete',
+                        result
                     });
                 }
             };
-            userModel.delUser(id, ress);
+            userModel.delUser( id, ress);
         } else {
             return res.status(404).send({
                 success: false,
-                message: 'Data User not Found'
+                message: 'There is no User with that ID ',
+                result
             });
         }
     };

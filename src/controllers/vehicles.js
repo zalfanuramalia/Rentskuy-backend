@@ -1,13 +1,25 @@
 const vehicleModel = require('../models/vehicles');
 
-
 const getVehicles = (req, res)=>{
-    vehicleModel.getVehicles(result =>{
-        return res.json({
-            success: true,
-            message: 'List Vehicles',
-            result
-        });
+    let { search, page, limit } = req.query;
+    search = search || '';
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 5;
+    const offset = (page - 1) * limit;
+    const data = { search, limit, offset };
+    vehicleModel.getVehicles(data, (result) =>{
+        if (result.length > 0){
+            return res.send({
+                success: true,
+                message: 'Data Vehicle Found',
+                result
+            });
+        } else {
+            return res.status(404).send({
+                success: false,
+                message: 'Vehicle Not Found'
+            });
+        }
     });
 };
 
@@ -25,8 +37,7 @@ const getVehicle = (req, res)=>{
                 success: false,
                 message: 'Vehicle Not Found'
             });
-        }
-        
+        }        
     });
 };
 
@@ -46,6 +57,7 @@ const patchVehicle = (req, res)=>{
             return res.send({
                 success: true,
                 message: 'Data Updated',
+                result: req.body
             });
         } else {
             return res.status(404).send({
@@ -61,25 +73,28 @@ const patchVehicle = (req, res)=>{
 const delVehicle = (req, res) => {
     const {id} = req.params;
     const process = (result) => {
-        if (result.length > 0){
+        if (result.affectedRows == 1){
             const ress = (result) =>{
-                if(result.affectedRows == 1){
-                    return res.send({
-                        success: true,
-                        message : 'Vehicle was Delete'
-                    });
-                } else {
+                if(result.length > 0){
                     return res.status(500).send({
                         success: false,
-                        message : 'Vehicle failed to Delete'
+                        message : 'Vehicle failed to Delete',
+                        result
+                    });
+                } else {
+                    return res.send({
+                        success: true,
+                        message : 'Vehicle was Delete',
+                        result
                     });
                 }
             };
-            vehicleModel.delVehicle(id, ress);
+            vehicleModel.delVehicle( id, ress);
         } else {
             return res.status(404).send({
                 success: false,
-                message: 'Vehicle not Found'
+                message: 'There is no Vehicles with that ID',
+                result
             });
         }
     };
@@ -103,6 +118,7 @@ const postVehicle = (req, res) => {
             return res.send({
                 success: true,
                 message: 'Data Posted',
+                result: req.body
             });
         } else {
             return res.status(404).send({
@@ -113,7 +129,5 @@ const postVehicle = (req, res) => {
         
     }); 
 };
-
-
 
 module.exports = {getVehicles, getVehicle, patchVehicle, delVehicle, postVehicle};
