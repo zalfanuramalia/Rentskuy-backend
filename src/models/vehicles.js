@@ -1,5 +1,12 @@
 const db = require ('../helpers/database');
 
+exports.countVehicles = (data, cb) => {
+    db.query(`SELECT COUNT(*) as total FROM vehicles WHERE merk LIKE '%${data.search}%'` , (err, res) => {
+        if (err) throw err;
+        cb(res);
+    });
+};
+
 exports.getVehicles = (data, cb) => {
     db.query(`SELECT id, merk, price, location, capacity, can_prepayment, isAvailable, popularity FROM vehicles WHERE merk LIKE '%${data.search}%' LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
         if (err) throw err;

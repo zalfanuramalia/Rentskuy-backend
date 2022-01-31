@@ -8,18 +8,29 @@ const getVehicles = (req, res)=>{
     const offset = (page - 1) * limit;
     const data = { search, limit, offset };
     vehicleModel.getVehicles(data, (result) =>{
-        if (result.length > 0){
-            return res.send({
-                success: true,
-                message: 'Data Vehicle Found',
-                result
-            });
-        } else {
-            return res.status(404).send({
-                success: false,
-                message: 'Vehicle Not Found'
-            });
-        }
+        vehicleModel.countVehicles(data, (count) => {
+            const { total } = count[0];
+            const last = Math.ceil(total/limit);
+            if (result.length > 0){
+                return res.send({
+                    success: true,
+                    message: 'Data Vehicle Found',
+                    result,
+                    pageInfo: {
+                        prev: page > 1 ? `http://localhost:3000/vehicles?page=${page-1}`: null,
+                        next: page < last ? `http://localhost:3000/vehicles?page=${page+1}`: null,
+                        totalData:total,
+                        currentPage: page,
+                        lastPage: last
+                    }
+                });
+            } else {
+                return res.status(404).send({
+                    success: false,
+                    message: 'Vehicle Not Found'
+                });
+            }    
+        });
     });
 };
 
