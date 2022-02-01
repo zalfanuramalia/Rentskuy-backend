@@ -27,10 +27,25 @@ const getVehicles = (req, res)=>{
             } else {
                 return res.status(404).send({
                     success: false,
-                    message: 'Vehicle Not Found'
+                    message: 'Vehicle Not Found',
+                    pageInfo: {
+                        prev: page > 1 ? `http://localhost:3000/vehicles?page=${page-1}`: null,
+                        next: page < last ? `http://localhost:3000/vehicles?page=${page+1}`: null,
+                        totalData:total,
+                        currentPage: page,
+                        lastPage: last
+                    }
                 });
             }    
         });
+    });
+};
+
+const popular = (req, res)=>{
+    return res.send({
+        success: true,
+        message: 'List of Popular Vehicles',
+        res
     });
 };
 
@@ -141,4 +156,5 @@ const postVehicle = (req, res) => {
     }); 
 };
 
-module.exports = {getVehicles, getVehicle, patchVehicle, delVehicle, postVehicle};
+
+module.exports = {getVehicles, getVehicle, patchVehicle, delVehicle, postVehicle, popular};

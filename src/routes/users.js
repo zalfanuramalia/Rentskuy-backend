@@ -1,8 +1,9 @@
 const users = require('express').Router();
 
-const {dataUser, postUser, delUser, patchUser} = require('../controllers/users');
+const {dataUsers, dataUser, postUser, delUser, patchUser} = require('../controllers/users');
 
-users.get('/', dataUser);
+users.get('/', dataUsers);
+users.get('/:id', dataUser);
 users.post('/', postUser);
 users.delete('/:id', delUser);
 users.patch('/:id', patchUser);

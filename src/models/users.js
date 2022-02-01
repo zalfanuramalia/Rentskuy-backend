@@ -1,7 +1,14 @@
 const db = require ('../helpers/database');
 
-exports.dataUser = (cb) => {
+exports.dataUsers = (cb) => {
     db.query('SELECT * FROM users', (err, res) => {
+        if (err) throw err;
+        cb(res);
+    });
+};
+
+exports.dataUser = (id, cb) => {
+    db.query('SELECT * FROM users WHERE id = ?',[id], (err, res) => {
         if (err) throw err;
         cb(res);
     });

@@ -8,7 +8,7 @@ exports.countVehicles = (data, cb) => {
 };
 
 exports.getVehicles = (data, cb) => {
-    db.query(`SELECT id, merk, price, location, capacity, can_prepayment, isAvailable, popularity FROM vehicles WHERE merk LIKE '%${data.search}%' LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+    db.query(`SELECT id, merk, price, location, capacity, can_prepayment, isAvailable, popularity FROM vehicles WHERE merk LIKE '%${data.search}%' ORDER BY popularity DESC LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
         if (err) throw err;
         cb(res);
     });

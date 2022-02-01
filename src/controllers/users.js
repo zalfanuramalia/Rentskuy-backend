@@ -1,7 +1,7 @@
 const userModel = require('../models/users');
 
-const dataUser = (req, res) => {
-    userModel.dataUser((result) => {
+const dataUsers = (req, res) => {
+    userModel.dataUsers((result) => {
         if (result.length> 0){
             return res.send({
                 success: true,
@@ -12,6 +12,24 @@ const dataUser = (req, res) => {
             return res.status(404).send({
                 success: false,
                 message: 'Data not Found'
+            });
+        }
+    });
+};
+
+const dataUser = (req, res) => {
+    const dataID =req.params.id;
+    userModel.dataUser(dataID, (result) => {
+        if (result.length > 0){
+            return res.send({
+                success: true,
+                message: 'List Detail User',
+                results: result[0]
+            });
+        } else {
+            return res.status(404).send({
+                success: false,
+                message: 'Vehicle Not Found'
             });
         }
     });
@@ -104,4 +122,4 @@ const patchUser = (req, res)=>{
 };
 
 
-module.exports = {dataUser, postUser, delUser, patchUser};
+module.exports = {dataUsers, dataUser, postUser, delUser, patchUser};
