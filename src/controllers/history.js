@@ -2,17 +2,20 @@ const historyModel = require('../models/history');
 
 const postHistory = (req, res) => {
     const data2 = {
-        date_rent: req.body.date_rent,
+        id: res.length + 1,
+        merk: req.body.merk,
         return: req.body.return,
         prepayment: req.body.prepayment,
         new_arrival: req.body.new_arrival,
+        popularity: req.body.popularity
     };
     historyModel.postHistory(data2, (result) =>{
+        console.log(result);
         if (result.affectedRows == 1){
             return res.send({
                 success: true,
                 message: 'History Posted',
-                result
+                result: req.body
             });
         } else {
             return res.status(404).send({
@@ -26,18 +29,20 @@ const postHistory = (req, res) => {
 const delHistory = (req, res) => {
     const {id} = req.params;
     const process = (result) => {
-        if (result.length > 0){
+        if (result.affectedRows == 1){
             const ress = (result) =>{
-                if(result.affectedRows == 1){
-                    return res.send({
-                        success: true,
-                        message : 'History Delete'
-                    });
-                } else {
+                if(result.length > 0){
                     return res.status(500).send({
                         success: false,
                         message : 'Data History failed to Delete'
                     });
+                    
+                } else {
+                    return res.send({
+                        success: true,
+                        message : 'History Delete'
+                    });
+                    
                 }
             };
             historyModel.delHistory(id, ress);
@@ -54,10 +59,12 @@ const delHistory = (req, res) => {
 const patchHistory = (req, res)=>{
     const {id} =req.params;
     const data = {
-        date_rent: req.body.date_rent,
+        id: res.length + 1,
+        merk: req.body.merk,
         return: req.body.return,
         prepayment: req.body.prepayment,
         new_arrival: req.body.new_arrival,
+        popularity: req.body.popularity
     };
     const ress = (result) =>{
         if (result.affectedRows == 1){
@@ -92,5 +99,7 @@ const dataHistory = (req, res) => {
         }
     });
 };
+
+
 
 module.exports = {postHistory, delHistory, patchHistory, dataHistory};

@@ -1,7 +1,7 @@
 const db = require ('../helpers/database');
 
 exports.postHistory = (data2, cb) => {
-    db.query('INSERT INTO history (date_rent, return, prepayment, new_arrival) VALUES (? , ? , ? , ?)',[data2.date_rent, data2.return, data2.prepayment, data2.new_arrival], (error, res) => {
+    db.query('INSERT INTO history (merk, return, prepayment, new_arrival, popularity) VALUES (? , ? , ? , ? , ?)',[data2.merk, data2.return, data2.prepayment, data2.new_arrival, data2.popularity], (error, res) => {
         if (error) throw error;
         cb(res);
     });
@@ -15,15 +15,16 @@ exports.delHistory = (id, cb) => {
 };
 
 exports.patchHistory = (data, id, cb) => {
-    db.query('UPDATE history SET date_rent = ?, return = ?, prepayment = ?, new_arrival = ? WHERE id = ?', [data.date_rent, data.return, data.prepayment, data.new_arrival, id], (error, res) => {
+    db.query('UPDATE history SET merk = ?, return = ?, prepayment = ?, new_arrival = ?, popularity = ? WHERE id = ?', [data.merk, data.date_rent, data.return, data.prepayment, data.new_arrival, id], (error, res) => {
         if (error) throw error;
         cb(res);
     });
 };
 
 exports.dataHistory = (cb) => {
-    db.query('SELECT * FROM history', (err, res) => {
+    db.query('SELECT u.name as userFullName, v.merk as vehicleName, prepayment, date_rent FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id', (err, res) => {
         if (err) throw err;
         cb(res);
     });
 };
+

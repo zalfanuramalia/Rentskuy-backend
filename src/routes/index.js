@@ -6,4 +6,6 @@ route.use('/users', require('./users'));
 
 route.use('/history', require('./history'));
 
+route.use('/category', require('./category'));
+
 module.exports = route;

@@ -7,4 +7,5 @@ history.delete('/:id', delHistory);
 history.patch('/:id', patchHistory);
 history.get('/', dataHistory);
 
+
 module.exports = history;
