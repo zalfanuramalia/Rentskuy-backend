@@ -41,14 +41,6 @@ const getVehicles = (req, res)=>{
     });
 };
 
-const popular = (req, res)=>{
-    return res.send({
-        success: true,
-        message: 'List of Popular Vehicles',
-        res
-    });
-};
-
 const getVehicle = (req, res)=>{
     const dataID =req.params.id;
     vehicleModel.getVehicle(dataID, results => {
@@ -61,7 +53,7 @@ const getVehicle = (req, res)=>{
         } else {
             return res.status(404).send({
                 success: false,
-                message: 'Vehicle Not Found'
+                message: 'There is no Vehicles'
             });
         }        
     });
@@ -70,10 +62,11 @@ const getVehicle = (req, res)=>{
 const patchVehicle = (req, res)=>{
     const {id} =req.params;
     const data = {
+        category_id: req.body.category_id,
         merk: req.body.merk,
         price: req.body.price,
         location: req.body.location,
-        capacity: req.body.capacity,
+        qyt: req.body.qyt,
         can_prepayment: req.body.can_prepayment,
         isAvailable: req.body.isAvailable,
         popularity: req.body.popularity
@@ -121,7 +114,7 @@ const delVehicle = (req, res) => {
                 success: false,
                 message: 'There is no Vehicles with that ID',
                 result
-            });
+            });            
         }
     };
     vehicleModel.delVehicle(id, process);
@@ -130,13 +123,13 @@ const delVehicle = (req, res) => {
 const postVehicle = (req, res) => {
     const data1 = {
         id: res.length + 1,
+        category_id: req.body.category_id,
         merk: req.body.merk,
         price: req.body.price,
         location: req.body.location,
-        capacity: req.body.capacity,
+        qyt: req.body.qyt,
         can_prepayment: req.body.can_prepayment,
         isAvailable: req.body.isAvailable,
-        reservation: req.body.reservation,
         popularity: req.body.popularity
     };
     vehicleModel.postVehicle(data1, (result) =>{
@@ -156,5 +149,16 @@ const postVehicle = (req, res) => {
     }); 
 };
 
+const vehiclesCategory = (req, res) => {
+    const category= req.params.category_id;
+    vehicleModel.vehiclesCategory(category, (result) =>{
+        return res.send({
+            success: true,
+            message: 'Data Category',
+            result
+        });      
+    }); 
+    console.log(category);
+};
 
-module.exports = {getVehicles, getVehicle, patchVehicle, delVehicle, postVehicle, popular};
+module.exports = {getVehicles, getVehicle, patchVehicle, delVehicle, postVehicle, vehiclesCategory};
