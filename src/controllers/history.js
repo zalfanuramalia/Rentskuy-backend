@@ -1,16 +1,49 @@
 const historyModel = require('../models/history');
 
+const popularVehicles = (req, res) => {
+    historyModel.popularVehicles((result) => {
+        if (result.length> 0){
+            return res.send({
+                success: true,
+                message: 'Most Popular Vehicles',
+                result
+            });
+        } else {
+            return res.status(404).send({
+                success: false,
+                message: 'There is no Popular Vehicles'
+            });
+        }
+    });
+};
+
+const dataHistory = (req, res) => {
+    historyModel.dataHistory((result) => {
+        if (result.length> 0){
+            return res.send({
+                success: true,
+                message: 'Data History',
+                result
+            });
+        } else {
+            return res.status(404).send({
+                success: false,
+                message: 'There is no History'
+            });
+        }
+    });
+};
+
 const postHistory = (req, res) => {
     const data2 = {
         id: res.length + 1,
-        merk: req.body.merk,
+        id_users: parseInt(req.body.id_users),
+        id_vehicles: parseInt(req.body.id_vehicles),
         return: req.body.return,
-        prepayment: req.body.prepayment,
+        prepayment: parseInt(req.body.prepayment),
         new_arrival: req.body.new_arrival,
-        popularity: req.body.popularity
     };
     historyModel.postHistory(data2, (result) =>{
-        console.log(result);
         if (result.affectedRows == 1){
             return res.send({
                 success: true,
@@ -60,11 +93,9 @@ const patchHistory = (req, res)=>{
     const {id} =req.params;
     const data = {
         id: res.length + 1,
-        merk: req.body.merk,
         return: req.body.return,
         prepayment: req.body.prepayment,
         new_arrival: req.body.new_arrival,
-        popularity: req.body.popularity
     };
     const ress = (result) =>{
         if (result.affectedRows == 1){
@@ -83,23 +114,4 @@ const patchHistory = (req, res)=>{
     historyModel.patchHistory(data, id, ress);  
 };
 
-const dataHistory = (req, res) => {
-    historyModel.dataHistory((result) => {
-        if (result.length> 0){
-            return res.send({
-                success: true,
-                message: 'Data History',
-                result
-            });
-        } else {
-            return res.status(404).send({
-                success: false,
-                message: 'There is no History'
-            });
-        }
-    });
-};
-
-
-
-module.exports = {postHistory, delHistory, patchHistory, dataHistory};
+module.exports = {popularVehicles, postHistory, delHistory, patchHistory, dataHistory};

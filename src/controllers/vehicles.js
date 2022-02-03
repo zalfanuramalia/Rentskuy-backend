@@ -66,10 +66,9 @@ const patchVehicle = (req, res)=>{
         merk: req.body.merk,
         price: req.body.price,
         location: req.body.location,
-        qyt: req.body.qyt,
+        qty: req.body.qty,
         can_prepayment: req.body.can_prepayment,
         isAvailable: req.body.isAvailable,
-        popularity: req.body.popularity
     };
     const ress = (result) =>{
         if (result.affectedRows == 1){
@@ -127,10 +126,9 @@ const postVehicle = (req, res) => {
         merk: req.body.merk,
         price: req.body.price,
         location: req.body.location,
-        qyt: req.body.qyt,
+        qty: req.body.qty,
         can_prepayment: req.body.can_prepayment,
         isAvailable: req.body.isAvailable,
-        popularity: req.body.popularity
     };
     vehicleModel.postVehicle(data1, (result) =>{
         if (result.affectedRows == 1){
@@ -150,15 +148,15 @@ const postVehicle = (req, res) => {
 };
 
 const vehiclesCategory = (req, res) => {
-    const category= req.params.category_id;
-    vehicleModel.vehiclesCategory(category, (result) =>{
+    const { category_id } = req.params;
+    vehicleModel.vehiclesCategory(category_id, (result) =>{
         return res.send({
             success: true,
             message: 'Data Category',
             result
         });      
     }); 
-    console.log(category);
+    console.log(category_id);
 };
 
 module.exports = {getVehicles, getVehicle, patchVehicle, delVehicle, postVehicle, vehiclesCategory};

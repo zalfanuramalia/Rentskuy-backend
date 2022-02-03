@@ -2,7 +2,7 @@ const userModel = require('../models/users');
 
 const dataUsers = (req, res) => {
     userModel.dataUsers((result) => {
-        if (result.length> 0){
+        if (result.length > 0){
             return res.send({
                 success: true,
                 message: 'Data Users',
@@ -29,7 +29,7 @@ const dataUser = (req, res) => {
         } else {
             return res.status(404).send({
                 success: false,
-                message: 'Vehicle Not Found'
+                message: 'User Not Found'
             });
         }
     });
@@ -37,7 +37,7 @@ const dataUser = (req, res) => {
 
 const postUser = (req, res) => {
     const data2 = {
-        id: req.body.id,
+        id: res.length + 1,
         name: req.body.name,
         identity: req.body.identity,
         gender: req.body.gender,
@@ -109,6 +109,7 @@ const patchUser = (req, res)=>{
             return res.send({
                 success: true,
                 message: 'Data User Updated',
+                result: req.body
             });
         } else {
             return res.status(404).send({
@@ -118,7 +119,7 @@ const patchUser = (req, res)=>{
         }
         
     };
-    userModel.patchVehicle(data, id, ress);  
+    userModel.patchUser(data, id, ress);  
 };
 
 

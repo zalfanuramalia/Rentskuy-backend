@@ -63,11 +63,33 @@ const delCategories = (req, res) => {
             return res.status(404).send({
                 success: false,
                 message: 'There is no Category with that ID ',
-                result
             });
         }
     };
     categoryModel.delCategories(id, process);
 };
 
-module.exports = {categories, postCategories, delCategories};
+const patchCategory = (req, res)=>{
+    const {id} =req.params;
+    const data = {
+        name: req.body.name,
+    };
+    const ress = (result) =>{
+        if (result.affectedRows == 1){
+            return res.send({
+                success: true,
+                message: 'Data Category Updated',
+                result: req.body
+            });
+        } else {
+            return res.status(404).send({
+                success: false,
+                message: 'Data Category not Found'
+            });
+        }
+      
+    };
+    categoryModel.patchCategory(data, id, ress);  
+};
+
+module.exports = {categories, postCategories, delCategories, patchCategory};

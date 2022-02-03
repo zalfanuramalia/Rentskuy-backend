@@ -20,3 +20,10 @@ exports.delCategories = (id, cb) => {
         cb(res);
     });
 };
+
+exports.patchCategory = (data, id, cb) => {
+    db.query('UPDATE category SET name = ? WHERE id = ?', [data.name, id], (error, res) => {
+        if (error) throw error;
+        cb(res);
+    });
+};

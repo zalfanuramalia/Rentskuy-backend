@@ -15,7 +15,7 @@ exports.dataUser = (id, cb) => {
 };
 
 exports.postUser = (data2, cb) => {
-    db.query('INSERT INTO users (id, name, identity, gender, email, address, number, birthdate) VALUES (? , ? , ? , ? , ? , ? , ? , ?)',[data2.id, data2.name, data2.identity, data2.gender, data2.email, data2.address, data2.number, data2.birthdate], (error, res) => {
+    db.query('INSERT INTO users (name, identity, gender, email, address, number, birthdate) VALUES (? , ? , ? , ? , ? , ? , ?)',[data2.name, data2.identity, data2.gender, data2.email, data2.address, data2.number, data2.birthdate], (error, res) => {
         if (error) throw error;
         cb(res);
     });
@@ -28,9 +28,10 @@ exports.delUser = (id, cb) => {
     });
 };
 
-exports.patchUser = (data2, id, cb) => {
-    db.query('UPDATE users SET name = ? , identity = ? , gender = ? , email =  ? , address = ? , number = ? , birthdate = ? WHERE id = ?', [data2.name, data2.identity, data2.gender, data2.email, data2.address, data2.number, data2.birthdate], (error, res) => {
-        if (error) throw error;
-        cb(res);
-    });
+exports.patchUser = (data, id, cb) => {
+    db.query('UPDATE users SET name = ? , identity = ? , gender = ? , email =  ? , address = ? , number = ? , birthdate = ? WHERE id = ?', 
+        [data.name, data.identity, data.gender, data.email, data.address, data.number, data.birthdate, id], (error, res) => {
+            if (error) throw error;
+            cb(res);
+        });
 };
