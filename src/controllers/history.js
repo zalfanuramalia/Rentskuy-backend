@@ -17,6 +17,23 @@ const popularVehicles = (req, res) => {
     });
 };
 
+const popularBasedonDate = (req, res) => {
+    historyModel.popularBasedonDate((result) => {
+        if (result.length> 0){
+            return res.send({
+                success: true,
+                message: 'Popular Vehicles Based On Last 1 Month',
+                result
+            });
+        } else {
+            return res.status(404).send({
+                success: false,
+                message: 'There is no Popular Vehicles'
+            });
+        }
+    });
+};
+
 const dataHistory = (req, res) => {
     historyModel.dataHistory((result) => {
         if (result.length> 0){
@@ -114,4 +131,4 @@ const patchHistory = (req, res)=>{
     historyModel.patchHistory(data, id, ress);  
 };
 
-module.exports = {popularVehicles, postHistory, delHistory, patchHistory, dataHistory};
+module.exports = {popularVehicles, popularBasedonDate, postHistory, delHistory, patchHistory, dataHistory};

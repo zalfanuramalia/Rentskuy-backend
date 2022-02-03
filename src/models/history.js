@@ -1,7 +1,14 @@
 const db = require ('../helpers/database');
 
 exports.popularVehicles = (cb) => {
-    db.query('SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC;', (err, res) => {
+    db.query('SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC', (err, res) => {
+        if (err) throw err;
+        cb(res);
+    });
+};
+
+exports.popularBasedonDate = (cb) => {
+    db.query('SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE h.createdAt between subdate(curdate(), 30) and curdate() GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC', (err, res) => {
         if (err) throw err;
         cb(res);
     });
