@@ -1,8 +1,8 @@
 const db = require ('../helpers/database');
 
-exports.vehiclesCategory = (category_id, cb) => {
+exports.vehiclesCategory = (category, cb) => {
     db.query('SELECT v.merk, c.name as categoryName FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE category_id = ?',
-        [category_id], (err, res) => {
+        [category], (err, res) => {
             if (err) throw err;
             cb(res);
         });
@@ -29,11 +29,13 @@ exports.getVehicle = (id, cb) => {
     });
 };
 
-exports.patchVehicle = (data, id, cb) => {
-    db.query('UPDATE vehicles SET category_id = ? , merk = ?, price = ?, location = ?, qty = ?, can_prepayment = ?, isAvailable = ?, popularity = ? WHERE id = ?', [data.category_id, data.merk, data.price, data.location, data.qty, data.can_prepayment, data.isAvailable, data.popularity, id], (error, res) => {
-        if (error) throw error;
-        cb(res);
-    });
+exports.patchVehicle = (price, qty, data, id, cb) => {
+    const cek = db.query('UPDATE vehicles SET category_id = ? , merk = ?, price = ?, location = ?, qty = ?, can_prepayment = ?, isAvailable = ? WHERE id = ?', 
+        [data.category_id, data.merk, price, data.location, qty, data.can_prepayment, data.isAvailable, id], (error, res) => {
+            if (error) throw error;
+            cb(res);
+        });
+    console.log(cek.sql);
 };
 
 exports.delVehicle = (id, cb) => {
@@ -43,9 +45,9 @@ exports.delVehicle = (id, cb) => {
     });
 };
 
-exports.postVehicle = (data1, cb) => {
-    db.query('INSERT INTO vehicles (category_id, merk, price, location, qty, can_prepayment, isAvailable, popularity) VALUES (? , ? , ? , ? , ? , ? , ? , ?)',
-        [data1.category_id, data1.merk, data1.price, data1.location, data1.qty, data1.can_prepayment, data1.isAvailable, data1.popularity], (error, res) => {
+exports.postVehicle = (price, qty, data1, cb) => {
+    db.query('INSERT INTO vehicles (category_id, merk, price, location, qty, can_prepayment, isAvailable) VALUES (? , ? , ? , ? , ? , ? , ?)',
+        [data1.category_id, data1.merk, price, data1.location, qty, data1.can_prepayment, data1.isAvailable], (error, res) => {
             if (error) throw error;
             cb(res);
         });
