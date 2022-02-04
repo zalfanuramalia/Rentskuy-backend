@@ -1,21 +1,28 @@
 const db = require ('../helpers/database');
 
 exports.popularVehicles = (cb) => {
-    db.query('SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC', (err, res) => {
+    db.query('SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName, v.price*50/100 AS minPrepayment FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC', (err, res) => {
         if (err) throw err;
         cb(res);
     });
 };
 
-exports.popularBasedonDate = (cb) => {
-    db.query('SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE h.createdAt between subdate(curdate(), 30) and curdate() GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC', (err, res) => {
+exports.popularBasedonDate = (data, cb) => {
+    db.query(`SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE h.createdAt between subdate(curdate(), '${data.day}') and curdate() GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC`, (err, res) => {
         if (err) throw err;
         cb(res);
     });
 };
 
-exports.dataHistory = (cb) => {
-    db.query('SELECT u.name as userFullName, v.merk as vehicleName, prepayment, date_rent FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id', (err, res) => {
+exports.dataHistory = (data, cb) => {
+    db.query(`SELECT u.name as userFullName, v.merk as vehicleName, start_rent, v.price*50/100 AS minPrepayment FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE merk LIKE '%${data.search}%' LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+        if (err) throw err;
+        cb(res);
+    });
+};
+
+exports.countHistory = (data, cb) => {
+    db.query(`SELECT COUNT(*) as total FROM history h LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE v.merk LIKE '%${data.search}%'` , (err, res) => {
         if (err) throw err;
         cb(res);
     });
@@ -23,7 +30,7 @@ exports.dataHistory = (cb) => {
 
 
 exports.postHistory = (data2, cb) => {
-    db.query('INSERT INTO history (id_users, id_vehicles, `return`, prepayment, new_arrival) VALUES (? , ? , ? , ? , ?)',[data2.id_users, data2.id_vehicles, data2.return, data2.prepayment, data2.new_arrival], (error, res) => {
+    db.query('INSERT INTO history (id_users, id_vehicles, returned, new_arrival) VALUES (? , ? , ? , ?)',[data2.id_users, data2.id_vehicles, data2.returned, data2.new_arrival], (error, res) => {
         if (error) throw error;
         cb(res);
     });
@@ -37,7 +44,7 @@ exports.delHistory = (id, cb) => {
 };
 
 exports.patchHistory = (data, id, cb) => {
-    db.query('UPDATE history SET  return = ?, prepayment = ?, new_arrival = ? WHERE id = ?', [data.return, data.prepayment, data.new_arrival, id], (error, res) => {
+    db.query('UPDATE history SET returned = ?, new_arrival = ? WHERE id = ?', [data.returned, data.new_arrival, id], (error, res) => {
         if (error) throw error;
         cb(res);
     });
