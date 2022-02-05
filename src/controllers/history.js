@@ -83,19 +83,19 @@ const postHistory = (req, res) => {
     if (!data2.id_users && !data2.id_vehicles){
         return res.status(400).send({
             success: false,
-            message: 'ID user and vehicles must be number!'
+            message: 'ID user and vehicles must be filled and number!'
         });
     }
     if (!data2.id_users){
         return res.status(400).send({
             success: false,
-            message: 'ID user must be number!'
+            message: 'ID user must be filled and number!'
         });
     }
     if (!data2.id_vehicles){
         return res.status(400).send({
             success: false,
-            message: 'ID vehicles must be number!'
+            message: 'ID vehicles must be filled and number!'
         });
     }
     historyModel.postHistory(data2, (result) =>{
@@ -173,7 +173,7 @@ const patchHistory = (req, res)=>{
         } else {
             return res.status(404).send({
                 success: false,
-                message: 'Data History not Found'
+                message: 'Data History not Found with that ID'
             });
         }
         

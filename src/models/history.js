@@ -1,21 +1,21 @@
 const db = require ('../helpers/database');
 
 exports.popularVehicles = (cb) => {
-    db.query('SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName, v.price*50/100 AS minPrepayment FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC', (err, res) => {
+    db.query('SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName, v.price*50/100 AS minPrepaymentFROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC', (err, res) => {
         if (err) throw err;
         cb(res);
     });
 };
 
 exports.popularBasedonDate = (data, cb) => {
-    db.query(`SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE h.createdAt between subdate(curdate(), '${data.day}') and curdate() GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC`, (err, res) => {
+    db.query(`SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName, v.category_id AS Category FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE h.createdAt between subdate(curdate(), '${data.day}') and curdate() GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC`, (err, res) => {
         if (err) throw err;
         cb(res);
     });
 };
 
 exports.dataHistory = (data, cb) => {
-    db.query(`SELECT u.name as userFullName, v.merk as vehicleName, start_rent, v.price*50/100 AS minPrepayment FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE merk LIKE '%${data.search}%' LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+    db.query(`SELECT u.name as userFullName, v.merk as vehicleName, start_rent, v.price*50/100 AS minPrepayment, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE merk LIKE '%${data.search}%' LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
         if (err) throw err;
         cb(res);
     });
