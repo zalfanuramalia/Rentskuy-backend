@@ -39,19 +39,25 @@ const postUser = (req, res) => {
     const data2 = {
         id: res.length + 1,
         name: req.body.name,
-        identity: req.body.identity,
+        identity: parseInt(req.body.identity),
         gender: req.body.gender,
         email: req.body.email,
         address: req.body.address,
-        number: req.body.number,
+        number: parseInt(req.body.number),
         birthdate: req.body.birthdate,
     };
+    if(!data2.identity){
+        return res.status(400).send({
+            success: false,
+            message: 'Identity must be number!'
+        });
+    }
     userModel.postUser(data2, (result) =>{
         if (result.affectedRows == 1){
             return res.send({
                 success: true,
                 message: 'Data User Posted',
-                result
+                result: req.body
             });
         } else {
             return res.status(404).send({
@@ -63,7 +69,13 @@ const postUser = (req, res) => {
 };
 
 const delUser = (req, res) => {
-    const {id} = req.params;
+    const dataID = parseInt(req.params.id);
+    if(!dataID){
+        return res.status(400).send({
+            success: false,
+            message: 'ID must be number!'
+        });
+    }    
     const process = (result) => {
         if (result.affectedRows == 1){
             const ress = (result) =>{
@@ -81,7 +93,7 @@ const delUser = (req, res) => {
                     });
                 }
             };
-            userModel.delUser( id, ress);
+            userModel.delUser( dataID, ress);
         } else {
             return res.status(404).send({
                 success: false,
@@ -90,20 +102,39 @@ const delUser = (req, res) => {
             });
         }
     };
-    userModel.delUser(id, process);
+    userModel.delUser(dataID, process);
 };
 
 const patchUser = (req, res)=>{
-    const {id} =req.params;
+    const dataID = parseInt(req.params.id);
+    if(!dataID){
+        return res.status(400).send({
+            success: false,
+            message: 'ID must be number!'
+        });
+    }
     const data = {
         name: req.body.name,
-        identity: req.body.identity,
+        identity: parseInt(req.body.identity),
         gender: req.body.gender,
         email: req.body.email,
         address: req.body.address,
         number: req.body.number,
         birthdate: req.body.birthdate,
     };
+    const em = data.email.indexOf('@');
+    if (em < 1){
+        return res.status(400).send({
+            success: false,
+            message: 'Enter email correctly'
+        });
+    }
+    if(!data.identity){
+        return res.status(400).send({
+            success: false,
+            message: 'Identity must be number!'
+        });
+    }
     const ress = (result) =>{
         if (result.affectedRows == 1){
             return res.send({
@@ -119,7 +150,7 @@ const patchUser = (req, res)=>{
         }
         
     };
-    userModel.patchUser(data, id, ress);  
+    userModel.patchUser(data, dataID, ress);  
 };
 
 
