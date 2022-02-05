@@ -1,12 +1,13 @@
 const historyModel = require('../models/history');
 
 const dataHistory = (req, res) => {
-    let { search, page, limit } = req.query;
+    let { day, search, page, limit } = req.query;
+    day = parseInt(day) || null;
     search = search || '';
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 5;
     const offset = (page - 1) * limit;
-    const data = { search, limit, offset };
+    const data = { day, search, limit, offset };
     historyModel.dataHistory(data, (result) => {
         historyModel.countHistory(data,(count) => {
             const { total } = count[0];
@@ -56,6 +57,12 @@ const popularBasedonDate = (req, res) => {
     let { day } = req.query; 
     day = parseInt(day) || null;
     const data = {day};
+    if (!data){
+        return res.status(400).send({
+            success: false,
+            message: 'This must be filled with number'
+        });
+    }
     historyModel.popularBasedonDate(data, (result) => {
         if (result.length > 0){
             return res.send({

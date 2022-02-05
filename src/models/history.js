@@ -1,14 +1,14 @@
 const db = require ('../helpers/database');
 
 exports.popularVehicles = (cb) => {
-    db.query('SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName, v.price*50/100 AS minPrepaymentFROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC', (err, res) => {
+    db.query('SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName, h.id_vehicles AS IDV, v.category_id AS Category, v.price*50/100 AS minPrepayment, v.location AS Location, v.createdAt AS NewData FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC', (err, res) => {
         if (err) throw err;
         cb(res);
     });
 };
 
 exports.popularBasedonDate = (data, cb) => {
-    db.query(`SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName, v.category_id AS Category FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE h.createdAt between subdate(curdate(), '${data.day}') and curdate() GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC`, (err, res) => {
+    db.query(`SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName, h.id_vehicles AS IDV, v.category_id AS Category FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE h.createdAt >= NOW() - INTERVAL '${data.day}' DAY GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC`, (err, res) => {
         if (err) throw err;
         cb(res);
     });
