@@ -1,24 +1,47 @@
 const userModel = require('../models/users');
 
 const dataUsers = (req, res) => {
-    userModel.dataUsers((result) => {
-        if (result.length > 0){
-            return res.send({
-                success: true,
-                message: 'Data Users',
-                result
-            });
-        } else {
-            return res.status(404).send({
-                success: false,
-                message: 'Data not Found'
-            });
-        }
+    let {search, page, limit } = req.query;
+    search = search || '';
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 5;
+    const offset = (page - 1) * limit;
+    const data = { search, page, limit, offset };
+    userModel.dataUsers(data, (result) => {
+        userModel.countUsers(data,(count) => {
+            const { total } = count[0];
+            const last = Math.ceil(total/limit);
+            if (result.length > 0){
+                return res.send({
+                    success: true,
+                    message: 'Data Users',
+                    result,
+                    pageInfo: {
+                        prev: page > 1 ? `http://localhost:3000/history?page=${page-1}`: null,
+                        next: page < last ? `http://localhost:3000/history?page=${page+1}`: null,
+                        totalData:total,
+                        currentPage: page,
+                        lastPage: last
+                    }
+                });
+            } else {
+                return res.status(404).send({
+                    success: false,
+                    message: 'Data Users not Found'
+                });
+            }
+        });
     });
 };
 
 const dataUser = (req, res) => {
-    const dataID =req.params.id;
+    const dataID =parseInt(req.params.id);
+    if (!dataID){
+        return res.status(400).send({
+            success: false,
+            message: 'ID must be number!'
+        });
+    }
     userModel.dataUser(dataID, (result) => {
         if (result.length > 0){
             return res.send({
@@ -43,7 +66,7 @@ const postUser = (req, res) => {
         gender: req.body.gender,
         email: req.body.email,
         address: req.body.address,
-        number: parseInt(req.body.number),
+        number: req.body.number,
         birthdate: req.body.birthdate,
     };
     if(!data2.identity){
@@ -60,7 +83,7 @@ const postUser = (req, res) => {
                 result: req.body
             });
         } else {
-            return res.status(404).send({
+            return res.status(500).send({
                 success: false,
                 message: 'Data not Posted'
             });
@@ -145,7 +168,7 @@ const patchUser = (req, res)=>{
         } else {
             return res.status(404).send({
                 success: false,
-                message: 'Data not Found'
+                message: 'Data Users not Found with that ID'
             });
         }
         
