@@ -40,7 +40,13 @@ const postCategories = (req, res) => {
 };
 
 const delCategories = (req, res) => {
-    const {id} = req.params;
+    const dataID = parseInt(req.params.id);
+    if (!dataID){
+        return res.status(400).send({
+            success: false,
+            message: 'ID must be number!'
+        });
+    }
     const process = (result) => {
         if (result.affectedRows == 1){
             const ress = (result) =>{
@@ -58,7 +64,7 @@ const delCategories = (req, res) => {
                     });
                 }
             };
-            categoryModel.delCategories( id, ress);
+            categoryModel.delCategories( dataID, ress);
         } else {
             return res.status(404).send({
                 success: false,
@@ -66,11 +72,17 @@ const delCategories = (req, res) => {
             });
         }
     };
-    categoryModel.delCategories(id, process);
+    categoryModel.delCategories(dataID, process);
 };
 
 const patchCategory = (req, res)=>{
-    const {id} =req.params;
+    const dataID = parseInt(req.params.id);
+    if (!dataID){
+        return res.status(400).send({
+            success: false,
+            message: 'ID must be number!'
+        });
+    }
     const data = {
         name: req.body.name,
     };
@@ -89,7 +101,7 @@ const patchCategory = (req, res)=>{
         }
       
     };
-    categoryModel.patchCategory(data, id, ress);  
+    categoryModel.patchCategory(data, dataID, ress);  
 };
 
 module.exports = {categories, postCategories, delCategories, patchCategory};
