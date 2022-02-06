@@ -73,9 +73,15 @@ const getVehicle = (req, res)=>{
 };
 
 const patchVehicle = (req, res)=>{
-    const {id} =req.params;
+    const dataID =parseInt(req.params.id);
     const price = parseInt(req.body.price) || null;
     const qty = parseInt(req.body.qty) || null;
+    if (!dataID){
+        return res.status(400).send({
+            success: false,
+            message: 'ID must be number!'
+        });
+    }
     if(!price && !qty){
         return res.status(400).send({
             success: false,
@@ -117,7 +123,7 @@ const patchVehicle = (req, res)=>{
             });          
         }   
     };
-    vehicleModel.patchVehicle(price, qty, data, id, ress);
+    vehicleModel.patchVehicle(price, qty, data, dataID, ress);
 };
 
 const delVehicle = (req, res) => {
@@ -195,7 +201,7 @@ const postVehicle = (req, res) => {
         } else {
             return res.status(500).send({
                 success: false,
-                message: 'Data not Posted'
+                message: 'Data Vehicles not Posted'
             });
         }
         
