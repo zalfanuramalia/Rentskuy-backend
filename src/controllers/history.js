@@ -1,13 +1,12 @@
 const historyModel = require('../models/history');
 
 const dataHistory = (req, res) => {
-    let { day, search, page, limit } = req.query;
-    day = parseInt(day) || null;
+    let {search, page, limit } = req.query;
     search = search || '';
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 5;
     const offset = (page - 1) * limit;
-    const data = { day, search, limit, offset };
+    const data = { search, page, limit, offset };
     historyModel.dataHistory(data, (result) => {
         historyModel.countHistory(data,(count) => {
             const { total } = count[0];
@@ -28,7 +27,14 @@ const dataHistory = (req, res) => {
             } else {
                 return res.status(404).send({
                     success: false,
-                    message: 'There is no History'
+                    message: 'There is no Vehicles History',
+                    pageInfo: {
+                        prev: page > 1 ? `http://localhost:3000/history?page=${page-1}`: null,
+                        next: page < last ? `http://localhost:3000/history?page=${page+1}`: null,
+                        totalData:total,
+                        currentPage: page,
+                        lastPage: last
+                    }
                 });
             }
         });
@@ -54,10 +60,10 @@ const popularVehicles = (req, res) => {
 };
 
 const popularBasedonDate = (req, res) => {
-    let { day } = req.query; 
-    day = parseInt(day) || null;
-    const data = {day};
-    if (!data){
+    let { month } = req.query; 
+    month = parseInt(month) || null;
+    const data = {month};
+    if (!month){
         return res.status(400).send({
             success: false,
             message: 'This must be filled with number'
@@ -71,7 +77,7 @@ const popularBasedonDate = (req, res) => {
                 result
             });
         } else {
-            return res.status(400).send({
+            return res.status(404).send({
                 success: false,
                 message: 'Data must be number'
             });
@@ -90,19 +96,19 @@ const postHistory = (req, res) => {
     if (!data2.id_users && !data2.id_vehicles){
         return res.status(400).send({
             success: false,
-            message: 'ID user and vehicles must be filled and number!'
+            message: 'ID user and vehicles must be filled with number!'
         });
     }
     if (!data2.id_users){
         return res.status(400).send({
             success: false,
-            message: 'ID user must be filled and number!'
+            message: 'ID user must be filled with number!'
         });
     }
     if (!data2.id_vehicles){
         return res.status(400).send({
             success: false,
-            message: 'ID vehicles must be filled and number!'
+            message: 'ID vehicles must be filled with number!'
         });
     }
     historyModel.postHistory(data2, (result) =>{
@@ -113,9 +119,9 @@ const postHistory = (req, res) => {
                 result: req.body
             });
         } else {
-            return res.status(404).send({
+            return res.status(500).send({
                 success: false,
-                message: 'There is no history'
+                message: 'History failed to Post'
             });
         }
     }); 
@@ -129,6 +135,12 @@ const delHistory = (req, res) => {
             message: 'ID must be number!'
         });
     }
+    if (dataID == ''){
+        return res.status(400).send({
+            succes: false,
+            message: 'ID must be filled'
+        });
+    }
     const process = (result) => {
         if (result.affectedRows == 1){
             const ress = (result) =>{
@@ -137,7 +149,6 @@ const delHistory = (req, res) => {
                         success: false,
                         message : 'Data History failed to Delete'
                     });
-                    
                 } else {
                     return res.send({
                         success: true,
