@@ -21,8 +21,8 @@ exports.popularVehicles = (cb) => {
     });
 };
 
-exports.popularBasedonDate = (data, cb) => {
-    db.query(`SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName, h.id_vehicles AS IDV, v.category_id AS Category FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE h.createdAt >= NOW() - INTERVAL '${data.month}' MONTH GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC`, (err, res) => {
+exports.popularBasedonMonth = (data, cb) => {
+    db.query(`SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName, h.id_vehicles AS IDV, v.category_id AS Category, MONTH(h.createdAt) AS Month FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE MONTH(h.createdAt) = '${data.month}' AND YEAR(h.createdAt) = '${data.year}' GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC`, (err, res) => {
         if (err) throw err;
         cb(res);
     });
