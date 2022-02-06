@@ -212,10 +212,29 @@ const patchHistory = (req, res)=>{
         });
     }
     const data = {
-        id: res.length + 1,
+        id_users: parseInt(req.body.id_users),
+        id_vehicles: parseInt(req.body.id_vehicles),
         returned: req.body.returned,
         new_arrival: req.body.new_arrival,
     };
+    if (!data.id_users && !data.id_vehicles){
+        return res.status(400).send({
+            success: false,
+            message: 'ID user and vehicles must be filled with number!'
+        });
+    }
+    if (!data.id_users){
+        return res.status(400).send({
+            success: false,
+            message: 'ID user must be filled with number!'
+        });
+    }
+    if (!data.id_vehicles){
+        return res.status(400).send({
+            success: false,
+            message: 'ID vehicles must be filled with number!'
+        });
+    }
     const ress = (result) =>{
         if (result.affectedRows == 1){
             return res.send({
