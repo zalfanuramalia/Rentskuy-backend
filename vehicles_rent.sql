@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 02 Feb 2022 pada 09.11
+-- Waktu pembuatan: 06 Feb 2022 pada 06.31
 -- Versi server: 10.4.22-MariaDB
 -- Versi PHP: 8.0.14
 
@@ -43,7 +43,7 @@ INSERT INTO `category` (`id`, `name`, `createdAt`, `updatedAt`) VALUES
 (2, 'Motorcycle', '2022-02-02 12:03:37', '2022-02-02 06:03:29'),
 (3, 'Bike', '2022-02-02 12:03:44', '2022-02-02 06:03:39'),
 (4, 'Bus', '2022-02-02 12:11:02', NULL),
-(5, 'Truck', '2022-02-02 12:12:07', NULL);
+(5, 'Truck', '2022-02-02 12:12:07', '2022-02-03 10:32:58');
 
 -- --------------------------------------------------------
 
@@ -55,9 +55,8 @@ CREATE TABLE `history` (
   `id` int(11) NOT NULL,
   `id_users` int(11) DEFAULT NULL,
   `id_vehicles` int(11) DEFAULT NULL,
-  `date_rent` date NOT NULL DEFAULT current_timestamp(),
-  `return` varchar(80) NOT NULL,
-  `prepayment` int(80) NOT NULL,
+  `start_rent` date NOT NULL DEFAULT current_timestamp(),
+  `returned` enum('Yes','No') NOT NULL,
   `new_arrival` varchar(80) NOT NULL,
   `createdAt` datetime DEFAULT current_timestamp(),
   `updatedAt` datetime DEFAULT NULL ON UPDATE current_timestamp()
@@ -67,8 +66,26 @@ CREATE TABLE `history` (
 -- Dumping data untuk tabel `history`
 --
 
-INSERT INTO `history` (`id`, `id_users`, `id_vehicles`, `date_rent`, `return`, `prepayment`, `new_arrival`, `createdAt`, `updatedAt`) VALUES
-(1, 2, 26, '2022-02-02', 'payment', 300000, 'new', '2022-02-02 12:38:17', NULL);
+INSERT INTO `history` (`id`, `id_users`, `id_vehicles`, `start_rent`, `returned`, `new_arrival`, `createdAt`, `updatedAt`) VALUES
+(3, 6, 34, '2021-12-30', 'Yes', 'new', '2021-12-30 00:00:00', '2022-02-05 20:25:20'),
+(4, 2, 35, '2021-12-31', 'Yes', 'new', '2022-01-31 11:53:54', '2022-02-05 20:25:41'),
+(5, 6, 30, '2022-01-01', 'Yes', 'old', '2022-01-01 11:54:26', '2022-02-05 20:26:04'),
+(6, 5, 34, '2022-01-04', 'Yes', 'old', '2022-01-04 11:54:57', '2022-02-05 20:26:13'),
+(7, 5, 30, '2022-01-12', 'Yes', 'new', '2022-01-12 14:15:09', '2022-02-05 20:26:26'),
+(8, 2, 40, '2022-01-19', 'Yes', 'new', '2022-02-19 14:22:06', '2022-02-05 20:44:21'),
+(9, 2, 40, '2022-01-25', 'Yes', 'new', '2022-01-25 22:28:24', '2022-02-05 20:26:57'),
+(10, 6, 34, '2022-01-31', 'Yes', 'new', '2022-01-31 10:05:28', '2022-02-05 20:27:40'),
+(11, 7, 32, '2022-02-01', 'Yes', 'new', '2022-02-01 15:12:53', '2022-02-05 20:27:48'),
+(12, 10, 33, '2022-02-02', 'Yes', 'new', '2022-02-02 19:07:52', '2022-02-05 20:27:19'),
+(13, 9, 28, '2022-02-02', 'Yes', 'new', '2022-02-02 19:10:09', '2022-02-05 20:27:55'),
+(14, 6, 43, '2022-02-04', 'Yes', 'new', '2022-02-04 19:33:32', '2022-02-06 09:17:05'),
+(15, 9, 42, '2022-02-05', 'Yes', 'new', '2022-02-05 19:33:48', '2022-02-06 09:17:13'),
+(20, 3, 43, '2022-02-05', 'Yes', 'new', '2022-02-05 19:33:56', '2022-02-05 21:06:28'),
+(21, 13, 34, '2022-02-05', 'No', 'new', '2022-02-05 20:32:03', '2022-02-05 20:32:31'),
+(22, 12, 40, '2022-02-05', 'No', 'new', '2022-02-05 20:32:58', '2022-02-05 14:32:37'),
+(23, 11, 42, '2022-02-05', 'Yes', 'new', '2022-02-05 21:07:20', '2022-02-05 21:07:55'),
+(24, 11, 36, '2022-02-05', 'Yes', 'new', '2022-02-05 21:07:47', '2022-02-05 15:07:33'),
+(25, 2, 42, '2022-02-05', 'Yes', 'new', '2022-02-05 21:08:25', '2022-02-05 15:08:14');
 
 -- --------------------------------------------------------
 
@@ -79,12 +96,12 @@ INSERT INTO `history` (`id`, `id_users`, `id_vehicles`, `date_rent`, `return`, `
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `name` varchar(80) NOT NULL,
-  `identity` varchar(10) NOT NULL,
-  `gender` varchar(80) NOT NULL,
+  `identity` varchar(8) NOT NULL,
+  `gender` enum('Men','Women') NOT NULL,
   `email` varchar(80) NOT NULL,
   `address` varchar(100) NOT NULL,
   `number` varchar(13) NOT NULL,
-  `birthdate` varchar(80) NOT NULL,
+  `birthdate` date DEFAULT NULL,
   `createdAt` datetime NOT NULL DEFAULT current_timestamp(),
   `updatedAt` datetime DEFAULT NULL ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -94,7 +111,18 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `identity`, `gender`, `email`, `address`, `number`, `birthdate`, `createdAt`, `updatedAt`) VALUES
-(2, 'Meli', '12345688', 'Women', 'meli@gmail.com', 'Soeharto street number 1', '081234567890', '2 January 1987', '2022-02-02 11:07:47', NULL);
+(2, 'Lana', '12345577', 'Women', 'lana@gmail.com', 'Soeharto 1 Street Number 1', '081234567894', '1987-01-02', '2022-02-02 19:51:47', '2022-02-05 14:48:36'),
+(3, 'Dodot', '12345687', 'Men', 'dodot@gmail.com', 'Soekarno 1 street number 1', '081234567899', '1987-01-03', '2022-02-02 20:16:16', '2022-02-05 12:29:52'),
+(4, 'Dela', '12345677', 'Women', 'dela@gmail.com', 'Soekarno 2 street number 1', '081234567899', '1987-01-05', '2022-02-02 20:17:03', '2022-02-05 12:29:52'),
+(5, 'Dito', '12345667', 'Men', 'dito@gmail.com', 'Imam Bonjol Street Number 10', '082123456757', '1987-01-06', '2022-02-02 20:26:00', '2022-02-05 12:30:39'),
+(6, 'Dila', '12345666', 'Women', 'dila@gmail.com', 'Soekarno 3 street number 1', '081234567999', '1987-01-07', '2022-02-03 09:07:01', '2022-02-05 12:29:52'),
+(7, 'Dani', '12345653', 'Men', 'dila@gmail.com', 'Soekarno 3 street number 1', '081234567999', '1992-02-02', '2022-02-05 12:25:37', '2022-02-05 12:31:01'),
+(8, 'Paijo', '12345634', 'Men', 'dila@gmail.com', 'Soekarno 3 street number 1', '081234567999', '1988-02-02', '2022-02-05 12:40:11', NULL),
+(9, 'Deni', '12345623', 'Men', 'deni@gmail.com', 'Soekarno 3 street number 1', '081234567900', '1993-02-11', '2022-02-05 13:05:53', '2022-02-05 13:06:59'),
+(10, 'Lilis', '12345645', 'Women', 'lilis@gmail.com', 'Soekarno 10 street number 1', '081234567943', '1987-05-06', '2022-02-05 13:08:10', NULL),
+(11, 'Lia', '12345198', 'Women', 'lia@gmail.com', 'Soekarno 4 street number 1', '081234567694', '1987-10-12', '2022-02-05 14:24:40', NULL),
+(12, 'Indra', '12345121', 'Men', 'indra@gmail.com', 'Soekarno 4 street number 10', '081234567602', '1987-10-07', '2022-02-05 14:30:22', '2022-02-05 14:32:56'),
+(13, 'Genta', '12345115', 'Women', 'genta@gmail.com', 'Soekarno 4 street number 12', '081234567332', '1988-10-13', '2022-02-05 14:31:52', '2022-02-05 14:33:04');
 
 -- --------------------------------------------------------
 
@@ -111,7 +139,6 @@ CREATE TABLE `vehicles` (
   `qty` int(10) NOT NULL,
   `can_prepayment` tinyint(4) NOT NULL,
   `isAvailable` tinyint(4) NOT NULL,
-  `popularity` int(100) NOT NULL,
   `createdAt` datetime NOT NULL DEFAULT current_timestamp(),
   `updatedAt` datetime DEFAULT NULL ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -120,15 +147,24 @@ CREATE TABLE `vehicles` (
 -- Dumping data untuk tabel `vehicles`
 --
 
-INSERT INTO `vehicles` (`id`, `category_id`, `merk`, `price`, `location`, `qty`, `can_prepayment`, `isAvailable`, `popularity`, `createdAt`, `updatedAt`) VALUES
-(26, 1, 'Suzuki Ertiga', 350000, 'Yogyakarta', 1, 1, 1, 0, '2022-01-31 12:02:19', '2022-02-02 12:41:59'),
-(27, 1, 'Mitsubishi', 250000, 'Yogyakarta', 3, 1, 1, 2, '2022-01-31 12:02:31', '2022-02-02 12:41:59'),
-(28, 1, 'BMW', 250000, 'Yogyakarta', 1, 1, 1, 9, '2022-01-31 12:02:39', '2022-02-02 12:41:59'),
-(29, 1, 'Suzuki Balemo', 250000, 'Yogyakarta', 1, 1, 1, 7, '2022-01-31 14:38:56', '2022-02-02 12:41:59'),
-(30, 1, 'Ignis Suzuki', 200000, 'Yogyakarta', 2, 1, 1, 3, '2022-01-31 16:03:20', '2022-02-02 12:41:59'),
-(31, 1, 'Honda', 200000, 'Yogyakarta', 2, 1, 1, 0, '2022-01-31 16:04:05', '2022-02-02 12:41:59'),
-(32, 1, 'Mazda', 200000, 'Yogyakarta', 2, 1, 1, 0, '2022-01-31 16:04:35', '2022-02-02 12:41:59'),
-(33, 1, 'Hino', 200000, 'Yogyakarta', 1, 1, 1, 0, '2022-01-31 16:05:23', '2022-02-02 12:41:59');
+INSERT INTO `vehicles` (`id`, `category_id`, `merk`, `price`, `location`, `qty`, `can_prepayment`, `isAvailable`, `createdAt`, `updatedAt`) VALUES
+(27, 1, 'Mitsubishi', 250000, 'Yogyakarta', 3, 1, 1, '2022-01-31 12:02:31', '2022-02-02 12:41:59'),
+(28, 1, 'BMW', 250000, 'Yogyakarta', 1, 1, 1, '2022-01-31 12:02:39', '2022-02-02 12:41:59'),
+(29, 1, 'Suzuki Balemo', 250000, 'Yogyakarta', 1, 1, 1, '2022-01-31 14:38:56', '2022-02-02 12:41:59'),
+(30, 1, 'Ignis Suzuki', 200000, 'Yogyakarta', 2, 1, 1, '2022-01-31 16:03:20', '2022-02-02 12:41:59'),
+(31, 1, 'Honda', 200000, 'Yogyakarta', 2, 1, 1, '2022-01-31 16:04:05', '2022-02-02 12:41:59'),
+(32, 1, 'Mazda', 200000, 'Yogyakarta', 2, 1, 1, '2022-01-31 16:04:35', '2022-02-02 12:41:59'),
+(33, 1, 'Hino', 200000, 'Yogyakarta', 1, 1, 1, '2022-01-31 16:05:23', '2022-02-02 12:41:59'),
+(34, 1, 'Ferrari', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-02 19:29:53', '2022-02-02 19:30:51'),
+(35, 1, 'Chevrolet', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-02 19:32:16', '2022-02-02 19:36:17'),
+(36, 1, 'Nissan', 200000, 'Yogyakarta', 2, 1, 1, '2022-02-02 19:35:55', '2022-02-02 19:36:46'),
+(37, 1, 'Hyundai', 300000, 'Yogyakarta', 1, 1, 1, '2022-02-02 19:57:44', '2022-02-02 13:56:40'),
+(38, 1, 'Chery', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-03 10:36:13', NULL),
+(39, 2, 'Honda Genio', 250000, 'Yogyakarta', 1, 1, 1, '2022-02-04 10:41:12', '2022-02-04 20:41:10'),
+(40, 2, 'Yamaha Nmax', 250000, 'Yogyakarta', 1, 1, 1, '2022-02-04 10:46:38', '2022-02-04 20:50:40'),
+(41, 2, 'Viar', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-05 16:11:58', NULL),
+(42, 2, 'Gilera', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-05 16:12:21', '2022-02-05 16:17:43'),
+(43, 2, 'Petronas', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-05 16:14:38', '2022-02-05 16:18:22');
 
 --
 -- Indexes for dumped tables
@@ -175,19 +211,19 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT untuk tabel `history`
 --
 ALTER TABLE `history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT untuk tabel `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2147483648;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT untuk tabel `vehicles`
 --
 ALTER TABLE `vehicles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
