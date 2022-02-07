@@ -7,6 +7,12 @@ const dataHistory = (req, res) => {
     limit = parseInt(limit) || 5;
     const offset = (page - 1) * limit;
     const data = { search, page, limit, offset };
+    if(data.limit !== 'number'){
+        return res.status(400).send({
+            success: false,
+            message: 'limit must be number'
+        });
+    }
     historyModel.dataHistory(data, (result) => {
         historyModel.countHistory(data,(count) => {
             const { total } = count[0];
@@ -25,9 +31,9 @@ const dataHistory = (req, res) => {
                     }
                 });
             } else {
-                return res.status(404).send({
+                return res.status(400).send({
                     success: false,
-                    message: 'There is no Vehicles History',
+                    message: 'You must input correctly',
                     pageInfo: {
                         prev: page > 1 ? `http://localhost:3000/history?page=${page-1}`: null,
                         next: page < last ? `http://localhost:3000/history?page=${page+1}`: null,
@@ -151,7 +157,7 @@ const postHistory = (req, res) => {
             return res.send({
                 success: true,
                 message: 'History Posted',
-                result: req.body
+                result
             });
         } else {
             return res.status(500).send({
@@ -176,31 +182,30 @@ const delHistory = (req, res) => {
             message: 'ID must be filled'
         });
     }
-    const process = (result) => {
-        if (result.affectedRows == 1){
-            const ress = (result) =>{
-                if(result.length > 0){
+    historyModel.getHistory(dataID, (result) => {
+        historyModel.delHistory(dataID, () => {
+            if (result.length > 0){
+                if(result.affectedRows == 1){
                     return res.status(500).send({
                         success: false,
-                        message : 'Data History failed to Delete'
+                        message : 'Data History failed to Delete',
                     });
                 } else {
                     return res.send({
                         success: true,
-                        message : 'History Delete'
+                        message : 'History Delete',
+                        result
                     });
-                    
                 }
-            };
-            historyModel.delHistory(dataID, ress);
-        } else {
-            return res.status(404).send({
-                success: false,
-                message: 'Data History not Found'
-            });
-        }
-    };
-    historyModel.delHistory(dataID, process);
+            } else {
+                return res.status(404).send({
+                    success: false,
+                    message: 'Data History not Found'
+                });
+            }
+        });
+    });
+    
 };
 
 const patchHistory = (req, res)=>{
@@ -240,7 +245,7 @@ const patchHistory = (req, res)=>{
             return res.send({
                 success: true,
                 message: 'Data History Updated',
-                redult: req.body
+                result: req.body
             });
         } else {
             return res.status(404).send({

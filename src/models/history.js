@@ -35,6 +35,13 @@ exports.postHistory = (data2, cb) => {
     });
 };
 
+exports.getHistory = (dataID, cb) => {
+    db.query('SELECT h.id_users AS usersId, u.name as userFullName, h.id_vehicles AS vehiclesId, v.merk as vehicleName, start_rent, v.price*50/100 AS minPrepayment, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id = ?',[dataID], (err, res) => {
+        if (err) throw err;
+        cb(res);
+    });
+};
+
 exports.delHistory = (id, cb) => {
     db.query('DELETE FROM history WHERE id = ?',[id], (error, res) => {
         if (error) throw error;
