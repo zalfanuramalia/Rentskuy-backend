@@ -7,10 +7,22 @@ const dataHistory = (req, res) => {
     limit = parseInt(limit) || 5;
     const offset = (page - 1) * limit;
     const data = { search, page, limit, offset };
-    if(data.limit !== 'number'){
+    if(data.limit < 0 && data.page < 0){
         return res.status(400).send({
             success: false,
-            message: 'limit must be number'
+            message: 'Page and Limit Must be More Than 0'
+        });
+    }
+    if(data.limit < 0){
+        return res.status(400).send({
+            success: false,
+            message: 'Limit Must be More Than 0'
+        });
+    }
+    if(data.page < 0){
+        return res.status(400).send({
+            success: false,
+            message: 'Page Must be More Than 0'
         });
     }
     historyModel.dataHistory(data, (result) => {
@@ -45,6 +57,30 @@ const dataHistory = (req, res) => {
             }
         });
         
+    });
+};
+
+const detailHistory = (req, res)=>{
+    const dataID = parseInt(req.params.id);
+    if (!dataID){
+        return res.status(400).send({
+            success: false,
+            message: 'Data ID must be Number'
+        });
+    }
+    historyModel.detailHistory(dataID, (results) => {
+        if (results.length > 0){
+            return res.send({
+                success: true,
+                message: 'List Detail Vehicle',
+                results: results[0]
+            });
+        } else {
+            return res.status(404).send({
+                success: false,
+                message: 'There is no Vehicles with that ID'
+            });
+        }        
     });
 };
 
@@ -154,10 +190,12 @@ const postHistory = (req, res) => {
     }
     historyModel.postHistory(data2, (result) =>{
         if (result.affectedRows == 1){
-            return res.send({
-                success: true,
-                message: 'History Posted',
-                result
+            historyModel.getPostHistory( (result) => {
+                return res.send({
+                    success: true,
+                    message: 'History Posted',
+                    result
+                });
             });
         } else {
             return res.status(500).send({
@@ -176,31 +214,33 @@ const delHistory = (req, res) => {
             message: 'ID must be number!'
         });
     }
-    if (dataID == ''){
-        return res.status(400).send({
-            succes: false,
-            message: 'ID must be filled'
-        });
-    }
-    historyModel.getHistory(dataID, (result) => {
+    // if (dataID == ''){
+    //     return res.status(400).send({
+    //         succes: false,
+    //         message: 'ID must be filled'
+    //     });
+    // }
+    historyModel.getDelHistory(dataID, (result) => {
         historyModel.delHistory(dataID, () => {
-            if (result.length > 0){
-                if(result.affectedRows == 1){
-                    return res.status(500).send({
-                        success: false,
-                        message : 'Data History failed to Delete',
-                    });
-                } else {
-                    return res.send({
-                        success: true,
-                        message : 'History Delete',
-                        result
-                    });
-                }
+            if (result.affectedRows !== 1){
+                historyModel.delHistory(dataID, () => {
+                    if(result.length > 0){
+                        return res.send({
+                            success: false,
+                            message : 'History Success Deleted',
+                            result
+                        });
+                    } else {
+                        return res.status(404).send({
+                            success: true,
+                            message : 'Data History not Found',
+                        });
+                    }
+                });
             } else {
-                return res.status(404).send({
+                return res.status(500).send({
                     success: false,
-                    message: 'Data History not Found'
+                    message: 'Data History failed to Delete'
                 });
             }
         });
@@ -240,22 +280,22 @@ const patchHistory = (req, res)=>{
             message: 'ID vehicles must be filled with number!'
         });
     }
-    const ress = (result) =>{
+    historyModel.patchHistory(data, dataID, (result) =>{
         if (result.affectedRows == 1){
-            return res.send({
-                success: true,
-                message: 'Data History Updated',
-                result: req.body
+            historyModel.getPatchHistory(dataID, (result) => {
+                return res.send({
+                    success: true,
+                    message: 'Data History Updated',
+                    result
+                });
             });
         } else {
-            return res.status(404).send({
-                success: false,
-                message: 'Data History not Found with that ID'
+            return res.send({
+                success: true,
+                message: 'Data History not Found with that ID',
             });
         }
-        
-    };
-    historyModel.patchHistory(data, dataID, ress);  
+    });
 };
 
-module.exports = {popularVehicles, popularBasedonMonth, postHistory, delHistory, patchHistory, dataHistory};
+module.exports = {dataHistory, detailHistory, popularVehicles, popularBasedonMonth, postHistory, delHistory, patchHistory};

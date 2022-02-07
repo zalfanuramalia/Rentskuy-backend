@@ -14,6 +14,13 @@ exports.countHistory = (data, cb) => {
     });
 };
 
+exports.detailHistory = (dataID, cb) => {
+    db.query('SELECT * FROM history WHERE id = ?',[dataID], (err, res) => {
+        if (err) throw err;
+        cb(res);
+    });
+};
+
 exports.popularVehicles = (cb) => {
     db.query('SELECT COUNT(*) AS mostPopular, v.merk AS vehicleName, h.id_vehicles AS IDV, v.category_id AS Category, v.price*50/100 AS minPrepayment, v.location AS Location, v.createdAt AS NewData FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC', (err, res) => {
         if (err) throw err;
@@ -35,8 +42,8 @@ exports.postHistory = (data2, cb) => {
     });
 };
 
-exports.getHistory = (dataID, cb) => {
-    db.query('SELECT h.id_users AS usersId, u.name as userFullName, h.id_vehicles AS vehiclesId, v.merk as vehicleName, start_rent, v.price*50/100 AS minPrepayment, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id = ?',[dataID], (err, res) => {
+exports.getPostHistory = (cb) => {
+    db.query('SELECT u.name as userFullName, h.id_users AS usersId, v.merk as vehicleName, h.id_vehicles AS vehiclesId, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id ORDER BY h.id DESC LIMIT 1', (err, res) => {
         if (err) throw err;
         cb(res);
     });
@@ -49,11 +56,23 @@ exports.delHistory = (id, cb) => {
     });
 };
 
-exports.patchHistory = (data, id, cb) => {
-    db.query('UPDATE history SET returned = ?, new_arrival = ? WHERE id = ?', [data.returned, data.new_arrival, id], (error, res) => {
+exports.getDelHistory = (dataID, cb) => {
+    db.query('SELECT h.id_users AS usersId, u.name as userFullName, h.id_vehicles AS vehiclesId, v.merk as vehicleName, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id = ?',[dataID], (err, res) => {
+        if (err) throw err;
+        cb(res);
+    });
+};
+
+exports.patchHistory = (data, dataID, cb) => {
+    db.query('UPDATE history SET id_users = ?, id_vehicles = ?, returned = ?, new_arrival = ? WHERE id = ?', [data.id_users, data.id_vehicles, data.returned, data.new_arrival, dataID], (error, res) => {
         if (error) throw error;
         cb(res);
     });
 };
 
-
+exports.getPatchHistory = (dataID, cb) => {
+    db.query('SELECT u.name as userFullName, h.id_users AS usersId, v.merk as vehicleName, h.id_vehicles AS vehiclesId, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id = ?',[dataID], (err, res) => {
+        if (err) throw err;
+        cb(res);
+    });
+};
