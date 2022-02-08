@@ -74,6 +74,18 @@ const getVehicle = (req, res)=>{
 
 const patchVehicle = (req, res)=>{
     const dataID =parseInt(req.params.id);
+    const data = {
+        id: res.length + 1,
+        category_id: req.body.category_id,
+        brand: req.body.brand,
+        location: req.body.location,
+        can_prepayment: req.body.can_prepayment,
+        isAvailable: req.body.isAvailable,
+    };
+    const img =  req.file;
+    const upload = 'uploads/';
+    const image = upload.concat(img);
+    console.log(image);
     const price = parseInt(req.body.price) || null;
     const qty = parseInt(req.body.qty) || null;
     if (!dataID){
@@ -100,30 +112,22 @@ const patchVehicle = (req, res)=>{
             message: 'Quantity Data must be Number!'
         });
     }
-    const data = {
-        id: res.length + 1,
-        category_id: req.body.category_id,
-        merk: req.body.merk,
-        location: req.body.location,
-        can_prepayment: req.body.can_prepayment,
-        isAvailable: req.body.isAvailable,
-    };
-    const ress = (result) =>{
+    vehicleModel.patchVehicle(image, price, qty, data, dataID, (result) =>{
         if (result.affectedRows == 1){
-            return res.send({
-                success: true,
-                message: 'Data Updated',
-                result
+            vehicleModel.getPatchVehicle(dataID, (result) =>{
+                return res.send({
+                    success: true,
+                    message: 'Data Updated',
+                    result
+                });
             });
         } else {
             return res.status(404).send({
                 success: false,
                 message: 'There is no Data with that ID',
-                result
             });          
         }   
-    };
-    vehicleModel.patchVehicle(price, qty, data, dataID, ress);
+    });
 };
 
 const delVehicle = (req, res) => {
@@ -134,32 +138,31 @@ const delVehicle = (req, res) => {
             message: 'ID must be Number!'
         });
     }
-    const process = (result) => {
-        if (result.affectedRows == 1){
-            const ress = (result) =>{
-                if(result.length > 0){
-                    return res.status(500).send({
-                        success: false,
-                        message : 'Vehicle failed to Delete',
-                        result
-                    });
-                } else {
-                    return res.send({
-                        success: true,
-                        message : 'Vehicle was Delete',
-                        result
-                    });
-                }
-            };
-            vehicleModel.delVehicle(dataID, ress);
-        } else {
-            return res.status(404).send({
-                success: false,
-                message: 'There is no Vehicles with that ID',
-            });            
-        }
-    };
-    vehicleModel.delVehicle(dataID, process);
+    vehicleModel.getDelVehicle(dataID, (result) => {
+        vehicleModel.delVehicle(dataID, () => {
+            if (result.affectedRows !== 1){
+                vehicleModel.delVehicle(dataID, () => {
+                    if(result.length > 0){
+                        return res.send({
+                            success: false,
+                            message : 'Vehicle Data Success Deleted',
+                            result
+                        });
+                    } else {
+                        return res.status(404).send({
+                            success: true,
+                            message : 'Vehicle Data not Found',
+                        });
+                    }
+                });
+            } else {
+                return res.status(500).send({
+                    success: false,
+                    message: 'Vehicle Data failed to Delete'
+                });
+            }
+        });
+    });
 };
 
 const postVehicle = (req, res) => {
@@ -185,18 +188,27 @@ const postVehicle = (req, res) => {
     }
     const data1 = {
         id: res.length + 1,
-        category_id: req.body.category_id,
-        merk: req.body.merk,
+        category_id: parseInt(req.body.category_id),
+        brand: req.body.brand,
+        image: `uploads/${req.file.filename}`,
         location: req.body.location,
         can_prepayment: req.body.can_prepayment,
         isAvailable: req.body.isAvailable,
     };
+    if(!data1.category_id){
+        return res.status(400).send({
+            success: false,
+            message: 'ID category must be Number!'
+        });
+    }
     vehicleModel.postVehicle(price, qty, data1, (result) =>{
         if (result.affectedRows == 1){
-            return res.send({
-                success: true,
-                message: 'Data Posted',
-                result: req.body
+            vehicleModel.getPostVehicle((result) => {
+                return res.send({
+                    success: true,
+                    message: 'Data Posted',
+                    result
+                });
             });
         } else {
             return res.status(500).send({
@@ -204,7 +216,6 @@ const postVehicle = (req, res) => {
                 message: 'Data Vehicles not Posted'
             });
         }
-        
     }); 
 };
 
