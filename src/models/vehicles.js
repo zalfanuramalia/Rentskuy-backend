@@ -29,9 +29,9 @@ exports.getVehicle = (id, cb) => {
     });
 };
 
-exports.patchVehicle = (image, price, qty, data, dataID, cb) => {
+exports.patchVehicle = ( data, dataID, cb) => {
     const cek = db.query('UPDATE vehicles SET category_id = ? , brand = ?, image = ?, price = ?, location = ?, qty = ?, can_prepayment = ?, isAvailable = ? WHERE id = ?', 
-        [data.category_id, data.brand, image, price, data.location, qty, data.can_prepayment, data.isAvailable, dataID], (error, res) => {
+        [data.category_id, data.brand, data.image, data.price, data.location, data.qty, data.can_prepayment, data.isAvailable, dataID], (error, res) => {
             if (error) throw error;
             cb(res);
         });
@@ -44,6 +44,20 @@ exports.getPatchVehicle = (dataID, cb) => {
         cb(res);
     });
 };
+
+// exports.patchVehicleAsync = (data, dataID) => new Promise((resolve, reject)=> {
+//     db.query('UPDATE `vehicles` SET ? WHERE id=?', [data, dataID], (err, res)=> {
+//         if(err) reject(err);
+//         resolve(res); // Object => affectedRows
+//     });
+// });
+
+// exports.getPatchVehicleAsync = (id) => new Promise((resolve, reject)=> {
+//     db.query('SELECT * FROM vehicles WHERE id=?', [id], (err, res) => {
+//         if (err) reject(err);
+//         resolve(res);
+//     });
+// });
 
 exports.delVehicle = (id, cb) => {
     db.query('DELETE FROM vehicles WHERE id = ?',[id], (error, res) => {
@@ -59,9 +73,9 @@ exports.getDelVehicle = (dataID, cb) => {
     });
 };
 
-exports.postVehicle = (price, qty, data1, cb) => {
+exports.postVehicle = (data1, cb) => {
     db.query('INSERT INTO `vehicles` (category_id, brand, image, price, location, qty, can_prepayment, isAvailable) VALUES (?, ? , ? , ? , ? , ? , ? , ?)',
-        [data1.category_id, data1.brand, data1.image, price, data1.location, qty, data1.can_prepayment, data1.isAvailable], (error, res) => {
+        [data1.category_id, data1.brand, data1.image, data1.price, data1.location, data1.qty, data1.can_prepayment, data1.isAvailable], (error, res) => {
             if (error) throw error;
             cb(res);
         });
