@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 09 Feb 2022 pada 15.12
+-- Waktu pembuatan: 09 Feb 2022 pada 16.20
 -- Versi server: 10.4.14-MariaDB
 -- Versi PHP: 7.2.34
 
@@ -165,7 +165,7 @@ INSERT INTO `vehicles` (`id`, `category_id`, `brand`, `image`, `price`, `locatio
 (40, 2, 'Yamaha Nmax', NULL, 250000, 'Yogyakarta', 1, 1, 1, '2022-02-04 10:46:38', '2022-02-04 20:50:40'),
 (41, 2, 'Viar', NULL, 200000, 'Yogyakarta', 1, 1, 1, '2022-02-05 16:11:58', NULL),
 (42, 2, 'Gilera', NULL, 200000, 'Yogyakarta', 1, 1, 1, '2022-02-05 16:12:21', '2022-02-05 16:17:43'),
-(43, NULL, '', NULL, 0, '', 0, 0, 0, '2022-02-05 16:14:38', '2022-02-09 20:42:51'),
+(43, 2, 'Petronas Yamaha SRT', 'uploads/Petronas-Yamaha-1644418219223-192454176-jpg', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-05 16:14:38', '2022-02-09 21:50:19'),
 (44, 2, 'Harley Davidson Iron 1200', 'uploads/Harley-Davidson-Iron1200-1644371689638-334446882.jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 08:54:49', '2022-02-09 09:35:37'),
 (45, 2, 'Kaisar Ruby V250', 'uploads/Kaisar-Ruby-V250-1644374383719-391880077.jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 09:39:43', NULL),
 (47, 2, 'Viar Star NX', 'uploads/Viar-Star-NX-1644385802396-550870182.jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 12:50:02', NULL),
@@ -174,8 +174,9 @@ INSERT INTO `vehicles` (`id`, `category_id`, `brand`, `image`, `price`, `locatio
 (50, 2, 'Viar Cross X 150', 'uploads/uploads\\Viar-Cross-X-150-1644408753384-917277645-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:12:33', NULL),
 (51, 2, 'Viar Cross X 150', 'uploads/Viar-Cross-X-150-1644408778763-78770406-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:12:58', NULL),
 (52, 2, 'Viar Cross X 150', 'uploads/Viar-Cross-X-150-1644409001083-916811639-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:16:41', NULL),
-(53, 2, 'Viar Cross X 150', 'uploads/Viar-Cross-X-150-1644409084409-387178339-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:18:04', NULL),
-(54, 2, 'Viar Cross X 150', 'uploads/Viar-Cross-X-150-1644410361939-174212805-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:39:21', NULL);
+(53, 2, 'Petronas Yamaha SRT', 'uploads/Petronas-Yamaha-1644417238072-412644107-jpg', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:18:04', '2022-02-09 21:33:58'),
+(54, 2, 'Suzuki Satria F150', 'uploads/Suzuki-Satria-F150-1644418572529-630036082-jpg', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:39:21', '2022-02-09 21:56:12'),
+(55, 2, 'Suzuki Gixxer SF 250', 'uploads/Suzuki-Gixxer-SF-250-1644418633965-423914196-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 21:57:13', NULL);
 
 --
 -- Indexes for dumped tables
@@ -234,7 +235,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT untuk tabel `vehicles`
 --
 ALTER TABLE `vehicles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
