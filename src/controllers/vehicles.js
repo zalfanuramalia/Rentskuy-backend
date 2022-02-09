@@ -220,9 +220,9 @@ const postVehicle = (req, res) => {
                     });
                 });
             } else {
-                return res.status(500).send({
+                return res.status(400).send({
                     success: false,
-                    message: 'Unexpected Error'
+                    message: 'Unexpected Data'
                 });
             }
         });
@@ -230,84 +230,89 @@ const postVehicle = (req, res) => {
 };
 
 const patchVehicle = (req, res)=>{
-    const dataID = parseInt(req.params.id);
-    if (!dataID){
-        return res.status(400).send({
-            success: false,
-            message: 'ID must be number!'
-        });
-    }
-    vehicleModel.getPatchVehicle(dataID, (results) => {
-        if(results.length >0){
-            const data = {   };
-            const fillable = ['category_id','brand','image','price','location','qty','can_prepayment','isAvailable'];
-            fillable.forEach(field => {
-                data[field] = req.body[field]; // data.qty = req.body.qty            
-            });
-            console.log(data);
-            vehicleModel.patchVehicle(data, dataID, (result) =>{
-                if (result.affectedRows == 1){
-                    vehicleModel.getPatchVehicle(dataID, (fin) =>{
-                        return res.send({
-                            success: true,
-                            message: 'Data Updated',
-                            result: fin[0]
-                        });
-                    });
-                } else {
-                    return res.status(404).send({
-                        success: false,
-                        message: 'There is no Data with that ID',
-                    });          
-                }   
-            });
-        } else {
-            return res.status(500).send({
+    upload(req, res, function(err){
+        if(err){
+            return res.status(400).json({
                 success: false,
-                message: 'Unexpected Error'
+                message: err.message
             });
         }
+        const dataID = parseInt(req.params.id);
+        if (!dataID){
+            return res.status(400).send({
+                success: false,
+                message: 'ID must be number!'
+            });
+        }
+        vehicleModel.getPatchVehicle(dataID, (result) => {
+            if (result.length >=1){
+                const data = {
+                    id: res.length + 1,
+                    category_id: parseInt(req.body.category_id),
+                    brand: req.body.brand,
+                    price: parseInt(req.body.price),
+                    location: req.body.location,
+                    qty: parseInt(req.body.qty),
+                    can_prepayment: req.body.can_prepayment,
+                    isAvailable: req.body.isAvailable,
+                };
+                if(req.file){
+                    data.image = `uploads/${req.file.filename}`;
+                }
+                if(!data.price && !data.qty){
+                    return res.status(400).send({
+                        success: false,
+                        message: 'Price and Quantity Data must be Number!'
+                    });
+                }
+                if(!data.price){
+                    return res.status(400).send({
+                        success: false,
+                        message: 'Price Data must be Number!'
+                    });
+                }
+                if(!data.qty){
+                    return res.status(400).send({
+                        success: false,
+                        message: 'Quantity Data must be Number!'
+                    });
+                }
+                if(!data.category_id){
+                    return res.status(400).send({
+                        success: false,
+                        message: 'ID category must be Number!'
+                    });
+                }
+                vehicleModel.patchVehicle(data, dataID, (result) =>{
+                    if (result.affectedRows == 1){
+                        vehicleModel.getPatchVehicle(dataID, (fin) =>{
+                            const mapResult = fin.map(o => {
+                                if(o.image!== null){
+                                    o.image = `${APP_URL}/${o.image}`;
+                                }
+                                return o;
+                            });
+                            return res.send({
+                                success: true,
+                                message: 'Update Vehicle Data Success!',
+                                results: mapResult[0]
+                            });
+                        });
+                    } else {
+                        return res.status(404).send({
+                            success: false,
+                            message: 'Unexpected Error!',
+                        });          
+                    }   
+                });
+            } else {
+                return res.status(404).send({
+                    success: false,
+                    message: 'Unexpected Data'
+                });
+            }   
+        });
     });
-    // const data1 = {
-    //     id: res.length + 1,
-    //     category_id: parseInt(req.body.category_id),
-    //     brand: req.body.brand,
-    //     price: parseInt(req.body.price),
-    //     location: req.body.location,
-    //     qty: parseInt(req.body.qty),
-    //     can_prepayment: req.body.can_prepayment,
-    //     isAvailable: req.body.isAvailable,
-    // };
-    // if(req.file){
-    //     data1.image = `uploads/${req.file.filename}`;
-    // }
-    
-    // if(!data1.price && !data1.qty){
-    //     return res.status(400).send({
-    //         success: false,
-    //         message: 'Price and Quantity Data must be Number!'
-    //     });
-    // }
-    // if(!data1.price){
-    //     return res.status(400).send({
-    //         success: false,
-    //         message: 'Price Data must be Number!'
-    //     });
-    // }
-    // if(!data1.qty){
-    //     return res.status(400).send({
-    //         success: false,
-    //         message: 'Quantity Data must be Number!'
-    //     });
-    // }
-    // if(!data1.category_id){
-    //     return res.status(400).send({
-    //         success: false,
-    //         message: 'ID category must be Number!'
-    //     });
-    // }
-    
-
 };
 
 
