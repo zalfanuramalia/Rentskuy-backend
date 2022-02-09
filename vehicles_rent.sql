@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.0.3
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 06 Feb 2022 pada 06.31
--- Versi server: 10.4.22-MariaDB
--- Versi PHP: 8.0.14
+-- Waktu pembuatan: 09 Feb 2022 pada 15.12
+-- Versi server: 10.4.14-MariaDB
+-- Versi PHP: 7.2.34
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -133,7 +133,8 @@ INSERT INTO `users` (`id`, `name`, `identity`, `gender`, `email`, `address`, `nu
 CREATE TABLE `vehicles` (
   `id` int(11) NOT NULL,
   `category_id` int(11) DEFAULT NULL,
-  `merk` varchar(80) NOT NULL,
+  `brand` varchar(80) NOT NULL,
+  `image` text DEFAULT NULL,
   `price` int(11) NOT NULL,
   `location` varchar(50) NOT NULL,
   `qty` int(10) NOT NULL,
@@ -147,24 +148,34 @@ CREATE TABLE `vehicles` (
 -- Dumping data untuk tabel `vehicles`
 --
 
-INSERT INTO `vehicles` (`id`, `category_id`, `merk`, `price`, `location`, `qty`, `can_prepayment`, `isAvailable`, `createdAt`, `updatedAt`) VALUES
-(27, 1, 'Mitsubishi', 250000, 'Yogyakarta', 3, 1, 1, '2022-01-31 12:02:31', '2022-02-02 12:41:59'),
-(28, 1, 'BMW', 250000, 'Yogyakarta', 1, 1, 1, '2022-01-31 12:02:39', '2022-02-02 12:41:59'),
-(29, 1, 'Suzuki Balemo', 250000, 'Yogyakarta', 1, 1, 1, '2022-01-31 14:38:56', '2022-02-02 12:41:59'),
-(30, 1, 'Ignis Suzuki', 200000, 'Yogyakarta', 2, 1, 1, '2022-01-31 16:03:20', '2022-02-02 12:41:59'),
-(31, 1, 'Honda', 200000, 'Yogyakarta', 2, 1, 1, '2022-01-31 16:04:05', '2022-02-02 12:41:59'),
-(32, 1, 'Mazda', 200000, 'Yogyakarta', 2, 1, 1, '2022-01-31 16:04:35', '2022-02-02 12:41:59'),
-(33, 1, 'Hino', 200000, 'Yogyakarta', 1, 1, 1, '2022-01-31 16:05:23', '2022-02-02 12:41:59'),
-(34, 1, 'Ferrari', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-02 19:29:53', '2022-02-02 19:30:51'),
-(35, 1, 'Chevrolet', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-02 19:32:16', '2022-02-02 19:36:17'),
-(36, 1, 'Nissan', 200000, 'Yogyakarta', 2, 1, 1, '2022-02-02 19:35:55', '2022-02-02 19:36:46'),
-(37, 1, 'Hyundai', 300000, 'Yogyakarta', 1, 1, 1, '2022-02-02 19:57:44', '2022-02-02 13:56:40'),
-(38, 1, 'Chery', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-03 10:36:13', NULL),
-(39, 2, 'Honda Genio', 250000, 'Yogyakarta', 1, 1, 1, '2022-02-04 10:41:12', '2022-02-04 20:41:10'),
-(40, 2, 'Yamaha Nmax', 250000, 'Yogyakarta', 1, 1, 1, '2022-02-04 10:46:38', '2022-02-04 20:50:40'),
-(41, 2, 'Viar', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-05 16:11:58', NULL),
-(42, 2, 'Gilera', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-05 16:12:21', '2022-02-05 16:17:43'),
-(43, 2, 'Petronas', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-05 16:14:38', '2022-02-05 16:18:22');
+INSERT INTO `vehicles` (`id`, `category_id`, `brand`, `image`, `price`, `location`, `qty`, `can_prepayment`, `isAvailable`, `createdAt`, `updatedAt`) VALUES
+(27, 1, 'Mitsubishi', NULL, 250000, 'Yogyakarta', 3, 1, 1, '2022-01-31 12:02:31', '2022-02-02 12:41:59'),
+(28, 1, 'BMW', NULL, 250000, 'Yogyakarta', 1, 1, 1, '2022-01-31 12:02:39', '2022-02-02 12:41:59'),
+(29, 1, 'Suzuki Balemo', NULL, 250000, 'Yogyakarta', 1, 1, 1, '2022-01-31 14:38:56', '2022-02-02 12:41:59'),
+(30, 1, 'Ignis Suzuki', NULL, 200000, 'Yogyakarta', 2, 1, 1, '2022-01-31 16:03:20', '2022-02-02 12:41:59'),
+(31, 1, 'Honda', NULL, 200000, 'Yogyakarta', 2, 1, 1, '2022-01-31 16:04:05', '2022-02-02 12:41:59'),
+(32, 1, 'Mazda', NULL, 200000, 'Yogyakarta', 2, 1, 1, '2022-01-31 16:04:35', '2022-02-02 12:41:59'),
+(33, 1, 'Hino', NULL, 200000, 'Yogyakarta', 1, 1, 1, '2022-01-31 16:05:23', '2022-02-02 12:41:59'),
+(34, 1, 'Ferrari', NULL, 200000, 'Yogyakarta', 1, 1, 1, '2022-02-02 19:29:53', '2022-02-02 19:30:51'),
+(35, 1, 'Chevrolet', NULL, 200000, 'Yogyakarta', 1, 1, 1, '2022-02-02 19:32:16', '2022-02-02 19:36:17'),
+(36, 1, 'Nissan', NULL, 200000, 'Yogyakarta', 2, 1, 1, '2022-02-02 19:35:55', '2022-02-02 19:36:46'),
+(37, 1, 'Hyundai', NULL, 300000, 'Yogyakarta', 1, 1, 1, '2022-02-02 19:57:44', '2022-02-02 13:56:40'),
+(38, 1, 'Chery', NULL, 200000, 'Yogyakarta', 1, 1, 1, '2022-02-03 10:36:13', NULL),
+(39, 2, 'Honda Genio', NULL, 250000, 'Yogyakarta', 1, 1, 1, '2022-02-04 10:41:12', '2022-02-04 20:41:10'),
+(40, 2, 'Yamaha Nmax', NULL, 250000, 'Yogyakarta', 1, 1, 1, '2022-02-04 10:46:38', '2022-02-04 20:50:40'),
+(41, 2, 'Viar', NULL, 200000, 'Yogyakarta', 1, 1, 1, '2022-02-05 16:11:58', NULL),
+(42, 2, 'Gilera', NULL, 200000, 'Yogyakarta', 1, 1, 1, '2022-02-05 16:12:21', '2022-02-05 16:17:43'),
+(43, NULL, '', NULL, 0, '', 0, 0, 0, '2022-02-05 16:14:38', '2022-02-09 20:42:51'),
+(44, 2, 'Harley Davidson Iron 1200', 'uploads/Harley-Davidson-Iron1200-1644371689638-334446882.jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 08:54:49', '2022-02-09 09:35:37'),
+(45, 2, 'Kaisar Ruby V250', 'uploads/Kaisar-Ruby-V250-1644374383719-391880077.jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 09:39:43', NULL),
+(47, 2, 'Viar Star NX', 'uploads/Viar-Star-NX-1644385802396-550870182.jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 12:50:02', NULL),
+(48, 2, 'Viar Star NXViar Cross X 150', NULL, 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 12:51:47', NULL),
+(49, 2, 'Viar Cross X 150', 'uploads\\Viar-Cross-X-150-1644408515231-231188186-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:08:35', NULL),
+(50, 2, 'Viar Cross X 150', 'uploads/uploads\\Viar-Cross-X-150-1644408753384-917277645-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:12:33', NULL),
+(51, 2, 'Viar Cross X 150', 'uploads/Viar-Cross-X-150-1644408778763-78770406-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:12:58', NULL),
+(52, 2, 'Viar Cross X 150', 'uploads/Viar-Cross-X-150-1644409001083-916811639-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:16:41', NULL),
+(53, 2, 'Viar Cross X 150', 'uploads/Viar-Cross-X-150-1644409084409-387178339-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:18:04', NULL),
+(54, 2, 'Viar Cross X 150', 'uploads/Viar-Cross-X-150-1644410361939-174212805-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:39:21', NULL);
 
 --
 -- Indexes for dumped tables
@@ -223,7 +234,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT untuk tabel `vehicles`
 --
 ALTER TABLE `vehicles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
