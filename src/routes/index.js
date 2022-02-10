@@ -8,4 +8,6 @@ route.use('/history', require('./history'));
 
 route.use('/category', require('./category'));
 
+route.use('/auth', require('./auth'));
+
 module.exports = route;
