@@ -1,12 +1,15 @@
 const historyModel = require('../models/history');
+const {APP_URL} = process.env;
 
 const dataHistory = (req, res) => {
-    let {search, page, limit } = req.query;
+    let {search, page, limit, all, sort} = req.query;
     search = search || '';
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 5;
+    all = all || '';
+    sort = sort || '';
     const offset = (page - 1) * limit;
-    const data = { search, page, limit, offset };
+    const data = { search, page, limit, offset, all, sort };
     if(data.limit < 0 && data.page < 0){
         return res.status(400).send({
             success: false,
@@ -72,7 +75,7 @@ const detailHistory = (req, res)=>{
         if (results.length > 0){
             return res.send({
                 success: true,
-                message: 'List Detail Vehicle',
+                message: 'List Detail User',
                 results: results[0]
             });
         } else {
@@ -191,10 +194,16 @@ const postHistory = (req, res) => {
     historyModel.postHistory(data2, (result) =>{
         if (result.affectedRows == 1){
             historyModel.getPostHistory( (result) => {
+                const mapResults = result.map(o => {
+                    if(o.image!== null){
+                        o.image = `${APP_URL}/${o.image}`;
+                    }
+                    return o;
+                });
                 return res.send({
                     success: true,
                     message: 'History Posted',
-                    result
+                    result: mapResults[0]
                 });
             });
         } else {
@@ -214,12 +223,6 @@ const delHistory = (req, res) => {
             message: 'ID must be number!'
         });
     }
-    // if (dataID == ''){
-    //     return res.status(400).send({
-    //         succes: false,
-    //         message: 'ID must be filled'
-    //     });
-    // }
     historyModel.getDelHistory(dataID, (result) => {
         historyModel.delHistory(dataID, () => {
             if (result.affectedRows !== 1){
@@ -290,8 +293,8 @@ const patchHistory = (req, res)=>{
                 });
             });
         } else {
-            return res.send({
-                success: true,
+            return res.status(404).send({
+                success: false,
                 message: 'Data History not Found with that ID',
             });
         }
