@@ -2,7 +2,7 @@ const history = require('express').Router();
 
 const {popularVehicles, popularBasedonMonth, postHistory, delHistory, patchHistory, dataHistory, detailHistory} = require('../controllers/history');
 
-history.get('/vehicles/createdAt', popularBasedonMonth);
+history.get('/vehicles/createdAt',  popularBasedonMonth);
 history.get('/vehicles', popularVehicles);
 history.get('/', dataHistory);
 history.get('/:id', detailHistory);
