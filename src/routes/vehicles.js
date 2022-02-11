@@ -4,10 +4,10 @@ const {getVehicles, getVehicle, patchVehicle, delVehicle, postVehicle, vehiclesC
 const {verifyUser} = require('../helpers/auth');
 
 vehicles.get('/',verifyUser, getVehicles);
-vehicles.post('/',verifyUser, postVehicle);
-vehicles.get('/category/:category_id', vehiclesCategory);
+vehicles.post('/', postVehicle);
+vehicles.get('/category/:category_id', verifyUser, vehiclesCategory);
 vehicles.get('/:id',verifyUser, getVehicle);
-vehicles.patch('/:id',verifyUser, patchVehicle);
-vehicles.delete('/:id',verifyUser, delVehicle);
+vehicles.patch('/:id', patchVehicle);
+vehicles.delete('/:id', delVehicle);
 
 module.exports = vehicles;
