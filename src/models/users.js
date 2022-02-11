@@ -14,12 +14,12 @@ exports.countUsers = (data, cb) => {
   });
 };
 
-exports.dataUser = (id, cb) => {
+exports.dataUser = (id) => new Promise ((resolve, reject) => {
   db.query('SELECT * FROM users WHERE id = ?',[id], (err, res) => {
-    if (err) throw err;
-    cb(res);
+    if (err) reject (err);
+    resolve(res);
   });
-};
+});
 
 exports.postUser = (data2) => new Promise ((resolve, reject) => {
   db.query(`INSERT INTO users (name, identity, gender, email, address, number, birthdate, username, password) VALUES 
@@ -51,3 +51,33 @@ exports.patchUser = (data, id, cb) => {
       cb(res);
     });
 };
+
+exports.userByUsername = (username) => new Promise ((resolve, reject) => {
+  db.query('SELECT id, username, password FROM users WHERE username = ?', [username], (err, res) => {
+    if (err) reject (err);
+    resolve(res);
+  });
+});
+
+exports.registerUser = (data2) => new Promise ((resolve, reject) => {
+  db.query(`INSERT INTO users (name, email,  username, password) VALUES 
+  ('${data2.name}', '${data2.email}', '${data2.username}', '${data2.password}')`,
+  (err, res) => {
+    if (err) reject (err);
+    resolve(res);
+  });
+});
+
+exports.registerByUsername = (username) => new Promise ((resolve, reject) => {
+  db.query('SELECT id, email, username, password FROM users WHERE username = ? OR email = ?', [username, username], (err, res) => {
+    if (err) reject (err);
+    resolve(res);
+  });
+});
+
+exports.updateUser = (data, id) => new Promise((resolve, reject) => {
+  db.query('UPDATE `users` SET ? WHERE id=?', [data, id], (err, res) => {
+    if (err) reject(err);
+    resolve(res);
+  });
+});
