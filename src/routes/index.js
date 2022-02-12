@@ -10,4 +10,11 @@ route.use('/category', require('./category'));
 
 route.use('/auth', require('./auth'));
 
+route.get('/', (req, res) => {
+  return res.json({
+    success: true,
+    message: 'Backend is running well!'
+  });
+});
+
 module.exports = route;

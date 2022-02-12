@@ -9,7 +9,6 @@ const { APP_SECRET, APP_EMAIL } = process.env;
 exports.login = async (req, res) => {
   const { username, password } = req.body;
   const result = await userModel.userByUsername(username);
-  console.log(result);
   if(result.length === 1){
     const {password: hash} = result[0];
     const fin = await bcrypt.compare(password, hash);
@@ -60,7 +59,7 @@ exports.forgotPass = async (req, res) => {
   if (!code) {
     const user = await userModel.registerByUsername(email);
     if (user.length === 1) {
-      const randomCode = Math.round(Math.random() * (999999 - 100000) - 100000);
+      const randomCode = Math.floor(Math.pow(10, 6-1) + Math.random() * (Math.pow(10, 6) - Math.pow(10, 6-1) - 1));
       const reset = await reqForgotModel.createRequest(user[0].id, randomCode);
       if (reset.affectedRows >= 1) {
         const info = await mail.sendMail({
@@ -68,9 +67,9 @@ exports.forgotPass = async (req, res) => {
           to: email,
           subject: 'Reset Your Password | Backend Beginner',
           text: String(randomCode),
-          html: `<b>${randomCode}</b>`
+          html: `<b>Your Code is ${randomCode}</b>`
         });
-        console.log(info.messageId);
+        console.log(info);
         return res.send({
           success: true,
           message: 'Forgot Password request has been sent to your email!',
@@ -164,18 +163,22 @@ exports.verify = (req, res) => {
           });
         } else {
           return res.json({
-            success: true,
+            success: false,
             message: 'User not Verify!',
             result: {token}
           });
         }
       } catch (err) {
         return res.status(400).json({
-          success: true,
-          message: 'Token must be provided',
-          result: {token}
+          success: false,
+          message: 'User not Verify!',
         });
       }
+    } else {
+      return res.status(403).json({
+        success: false,
+        message: 'Token must be provided!'
+      });
     }
   }
 };
