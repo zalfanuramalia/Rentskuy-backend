@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 11 Feb 2022 pada 09.45
+-- Waktu pembuatan: 13 Feb 2022 pada 16.22
 -- Versi server: 10.4.14-MariaDB
 -- Versi PHP: 7.2.34
 
@@ -67,7 +67,9 @@ CREATE TABLE `forgot_request` (
 INSERT INTO `forgot_request` (`id`, `id_user`, `code`, `isExpired`, `createdAt`, `updatedAt`) VALUES
 (1, 33, '-96300', 0, '2022-02-11 15:29:00', NULL),
 (2, 33, '795246', 0, '2022-02-11 15:32:20', NULL),
-(3, 33, '-50021', 1, '2022-02-11 15:40:13', NULL);
+(3, 33, '-50021', 1, '2022-02-11 15:40:13', NULL),
+(4, 33, '199244', 1, '2022-02-12 13:38:58', NULL),
+(5, 33, '879482', 1, '2022-02-12 13:50:19', NULL);
 
 -- --------------------------------------------------------
 
@@ -105,15 +107,15 @@ INSERT INTO `history` (`id`, `id_users`, `id_vehicles`, `start_rent`, `returned`
 (14, 6, 43, '2022-02-04', 'Yes', 'new', '2022-02-04 19:33:32', '2022-02-06 09:17:05'),
 (15, 9, 42, '2022-02-05', 'Yes', 'new', '2022-02-05 19:33:48', '2022-02-06 09:17:13'),
 (20, 3, 43, '2022-02-05', 'Yes', 'new', '2022-02-05 19:33:56', '2022-02-05 21:06:28'),
-(21, 13, 34, '2022-02-05', 'No', 'new', '2022-02-05 20:32:03', '2022-02-05 20:32:31'),
-(22, 12, 40, '2022-02-05', 'No', 'new', '2022-02-05 20:32:58', '2022-02-05 14:32:37'),
+(21, 13, 34, '2022-02-05', 'Yes', 'new', '2022-02-05 20:32:03', '2022-02-12 20:26:22'),
+(22, 12, 40, '2022-02-05', 'Yes', 'new', '2022-02-05 20:32:58', '2022-02-12 20:26:28'),
 (23, 11, 42, '2022-02-05', 'Yes', 'new', '2022-02-05 21:07:20', '2022-02-05 21:07:55'),
 (24, 11, 36, '2022-02-05', 'Yes', 'new', '2022-02-05 21:07:47', '2022-02-05 15:07:33'),
 (25, 2, 42, '2022-02-05', 'Yes', 'new', '2022-02-05 21:08:25', '2022-02-05 15:08:14'),
 (28, 8, 43, '2022-02-10', 'Yes', 'new', '2022-02-10 07:09:23', '2022-02-10 07:26:47'),
-(29, 10, 44, '2022-02-10', 'No', 'new', '2022-02-10 07:09:50', NULL),
-(30, 9, 47, '2022-02-10', 'No', 'new', '2022-02-10 07:13:22', NULL),
-(31, 9, 47, '2022-02-11', 'No', 'new', '2022-02-11 07:22:16', NULL);
+(29, 10, 44, '2022-02-10', 'Yes', 'new', '2022-02-10 07:09:50', '2022-02-12 20:25:32'),
+(30, 9, 47, '2022-02-10', 'Yes', 'new', '2022-02-10 07:13:22', '2022-02-12 20:25:37'),
+(31, 9, 47, '2022-02-11', 'Yes', 'new', '2022-02-11 07:22:16', '2022-02-12 20:25:42');
 
 -- --------------------------------------------------------
 
@@ -172,9 +174,10 @@ INSERT INTO `users` (`id`, `name`, `identity`, `gender`, `email`, `address`, `nu
 (30, 'Nazra', '87654321', 'Women', 'nazra@gmail.com', 'Mengkudu 2 street number 100', '082178641319', '1972-05-14', 'nazra', '$2b$10$hIoJIeN43g2BV3QtpwpIUuraveLIqcWon2SAFZt9iXao2DZmUe.iK', '2022-02-10 13:14:32', NULL),
 (31, 'Indra', '87654323', 'Men', 'indra@gmail.com', 'Mengkudu 3 street number 100', '082178641322', '1972-05-23', 'indra', '1234', '2022-02-10 13:24:40', NULL),
 (32, 'Delia', '87654324', 'Women', 'delia@gmail.com', 'Mengkudu 4 street number 100', '082178641309', '1972-05-21', 'delia', '$2b$10$Z.SPbeTYl193/fNP7y/ADue9LntJkGpQAPt8tJSpLzow94h/wqcjC', '2022-02-10 13:28:01', NULL),
-(33, 'Zalfa', '87654312', 'Women', 'zalfafanur@gmail.com', 'Mengkudu 41 street number 100', '082178641321', '1999-01-24', 'zalfa', '$2b$10$0/7P8QCwKAfLjD2T20riL.CedVDq2Ic6O2YfORWHGNdr2fgNtnM/G', '2022-02-11 12:06:26', '2022-02-11 15:41:27'),
+(33, 'Zalfa', '87654312', 'Women', 'zalfafanur@gmail.com', 'Mengkudu 41 street number 100', '082178641321', '1999-01-24', 'zalfa', '$2b$20$U1ePOiwHaA1eR6qmh7qA0u8m2ti.Dzwyv/JBAPJC/SfXthgblbvk.', '2022-02-11 12:06:26', '2022-02-12 13:52:30'),
 (34, 'Salwa', '', 'Men', 'salwa@gmail.com', '', '', NULL, 'salwa', '$2b$10$OSGT0wLIGL.k0yawf5KVR.0Hp50WqJya8Qn2I7YRv9q4/Ge2Loud2', '2022-02-11 12:36:34', NULL),
-(35, 'Saniyyah', '', 'Men', 'saniyyah@gmail.com', '', '', NULL, 'saniyyah', '$2b$10$KFTfoiAxNONvRKYP.IVAH.SoLXDQlMbTpCafKN4HNTIWDYoZQ8XmW', '2022-02-11 12:38:08', NULL);
+(35, 'Saniyyah', '', 'Men', 'saniyyah@gmail.com', '', '', NULL, 'saniyyah', '$2b$10$KFTfoiAxNONvRKYP.IVAH.SoLXDQlMbTpCafKN4HNTIWDYoZQ8XmW', '2022-02-11 12:38:08', NULL),
+(36, 'Farel', '', 'Men', 'farel@gmail.com', '', '', NULL, 'farel', '$2b$10$fCkwkI8Syj5EXTMQsgYxRe16V5zSQ7ua4qrjgAjfKzQIJTGvOwCde', '2022-02-11 22:41:19', NULL);
 
 -- --------------------------------------------------------
 
@@ -222,14 +225,15 @@ INSERT INTO `vehicles` (`id`, `category_id`, `brand`, `image`, `price`, `locatio
 (45, 2, 'Kaisar Ruby V250', 'uploads/Kaisar-Ruby-V250-1644374383719-391880077.jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 09:39:43', NULL),
 (47, 2, 'Viar Star NX', 'uploads/Viar-Star-NX-1644385802396-550870182.jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 12:50:02', NULL),
 (49, 2, 'Kymco Downtown 250i', 'uploads/Kymco-Downtown-250i-1644554202754-419776006.jpg', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:08:35', '2022-02-11 11:36:42'),
-(50, 2, 'Viar Cross X 150', NULL, 200000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:12:33', '2022-02-11 12:47:24'),
+(50, 2, 'Viar Cross X 150', 'upload/\'Viar-Cross-X-150-1644761389564-99444708.jpg\'', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:12:33', '2022-02-13 21:09:49'),
 (51, 2, 'Viar Cross X 150', 'uploads/Viar-Cross-X-150-1644408778763-78770406-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:12:58', NULL),
 (52, 2, 'Viar Cross X 150', 'uploads/Viar-Cross-X-150-1644409001083-916811639-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:16:41', NULL),
 (53, 2, 'Petronas Yamaha SRT', 'uploads/Petronas-Yamaha-1644417238072-412644107-jpg', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:18:04', '2022-02-09 21:33:58'),
 (54, 2, 'Suzuki Satria F150', 'uploads/Suzuki-Satria-F150-1644546483961-304131263-jpg', 200000, 'Yogyakarta', 1, 1, 1, '2022-02-09 19:39:21', '2022-02-11 09:28:03'),
 (55, 2, 'Suzuki Gixxer SF 250', 'uploads/Suzuki-Gixxer-SF-250-1644418633965-423914196-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-09 21:57:13', NULL),
 (56, 2, 'Benelli Patagonian Eagle', 'uploads/Benelli-Patagonian-Eagle-1644490137581-913404908-jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-10 17:48:57', NULL),
-(57, 2, 'Kymco Like 150i', 'uploads/Kymco-Like-150i-1644558136144-319951699.jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-11 12:42:16', NULL);
+(57, 2, 'Kymco Like 150i', 'uploads/Kymco-Like-150i-1644558136144-319951699.jpg', 150000, 'Yogyakarta', 1, 1, 1, '2022-02-11 12:42:16', NULL),
+(58, 2, 'KTM Duke 200', 'uploads/KTM-Duke-200-1644763893594-73278972.jpg', 150000, 'Bandung', 1, 1, 1, '2022-02-13 21:51:33', NULL);
 
 --
 -- Indexes for dumped tables
@@ -283,7 +287,7 @@ ALTER TABLE `category`
 -- AUTO_INCREMENT untuk tabel `forgot_request`
 --
 ALTER TABLE `forgot_request`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT untuk tabel `history`
@@ -295,13 +299,13 @@ ALTER TABLE `history`
 -- AUTO_INCREMENT untuk tabel `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT untuk tabel `vehicles`
 --
 ALTER TABLE `vehicles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
