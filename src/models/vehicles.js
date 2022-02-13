@@ -9,7 +9,7 @@ exports.vehiclesCategory = (category, cb) => {
 };
 
 exports.getVehicles = (data, cb) => {
-  db.query(`SELECT v.*, c.name AS categoryName FROM vehicles V LEFT JOIN category c ON v.category_id=c.id WHERE brand LIKE '%${data.search}%' OR category_id = '${data.category}' ORDER BY ${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+  db.query(`SELECT v.*, c.name AS categoryName FROM vehicles V LEFT JOIN category c ON v.category_id=c.id WHERE brand LIKE '%${data.search}%' ORDER BY ${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
     if (err) throw err;
     cb(res);
   });
@@ -43,6 +43,27 @@ exports.getPatchVehicle = (dataID, cb) => {
     cb(res);
   });
 };
+
+// exports.updateVehicle = (data, id) => new Promise ((resolve, reject) => {
+//   db.query('UPDATE `vehicles` SET ? WHERE id=?', [data, id], (err, res)=> {
+//     if(err) reject (err);
+//     resolve(res);
+//   });
+// });
+
+exports.getVehicleAsync = (id) => new Promise((resolve, reject)=> {
+  db.query('SELECT v.*, c.name AS categoryID FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE v.id=?', [id], (err, res) => {
+    if (err) reject(err);
+    resolve(res);
+  });
+});
+
+exports.updateVehicleAsync = (data, id) => new Promise((resolve, reject)=> {
+  db.query('UPDATE `vehicles` SET ? WHERE id=?', [data, id], (err, res)=> {
+    if(err) reject(err);
+    resolve(res); // Object => affectedRows
+  });
+});
 
 
 exports.delVehicle = (id, cb) => {

@@ -7,11 +7,29 @@ const getVehicles = (req, res)=>{
   let { search, page, limit, tool, sort } = req.query;
   search = search || '';
   page = parseInt(page) || 1;
-  limit = parseInt(limit) || 5 || null;
-  tool = tool || '';
+  limit = parseInt(limit) || 5;
+  tool = tool || 'id';
   sort = sort || '';
   const offset = (page - 1) * limit;
   const data = { search, limit, offset, tool, sort};
+  if(data.limit < 0 && data.page < 0){
+    return res.status(400).send({
+      success: false,
+      message: 'Page and Limit Must be More Than 0'
+    });
+  }
+  if(data.limit < 0){
+    return res.status(400).send({
+      success: false,
+      message: 'Limit Must be More Than 0'
+    });
+  }
+  if(data.page < 0){
+    return res.status(400).send({
+      success: false,
+      message: 'Page Must be More Than 0'
+    });
+  }
   vehicleModel.getVehicles(data, (result) =>{
     const processedResult = result.map((obj) => {
       if(obj.image !== null){
@@ -210,20 +228,32 @@ const patchVehicle = (req, res)=>{
       });
     }
     vehicleModel.getPatchVehicle(dataID, (result) => {
+      console.log(result);
       if (result.length >=1){
-        const data = {
-          id: res.length + 1,
-          category_id: parseInt(req.body.category_id),
-          brand: req.body.brand,
-          price: parseInt(req.body.price),
-          location: req.body.location,
-          qty: parseInt(req.body.qty),
-          can_prepayment: req.body.can_prepayment,
-          isAvailable: req.body.isAvailable,
-        };
+        const data = {    };
+        // data["discount"] == data.discount
+        const fillable = ['category_id', 'brand','price', 'image', 'location','qty', 'can_prepayment', 'isAvailable'];
+        fillable.forEach(field => {
+          if (req.body[field]) {
+            return data[field] = req.body[field]; // data.qty = req.body.qty
+          } 
+        });
+        console.log(data);
         if(req.file){
-          data.image = `uploads/${req.file.filename}`;
+          data.image = `upload/'${req.file.filename}'`;
         }
+        console.log(data.image);
+        // const data = {
+        //   id: res.length + 1,
+        //   category_id: parseInt(req.body.category_id) || req.result.category_id,
+        //   brand: req.body.brand || result.brand,
+        //   price: parseInt(req.body.price),
+        //   location: req.body.location,
+        //   qty: parseInt(req.body.qty),
+        //   can_prepayment: req.body.can_prepayment,
+        //   isAvailable: req.body.isAvailable,
+        // };
+        
         if(!data.price && !data.qty){
           return res.status(400).send({
             success: false,
@@ -242,12 +272,12 @@ const patchVehicle = (req, res)=>{
             message: 'Quantity Data must be Number!'
           });
         }
-        if(!data.category_id){
+        if (!parseInt(req.body.category_id)){
           return res.status(400).send({
             success: false,
-            message: 'ID category must be Number!'
+            message: 'ID category must be number!'
           });
-        }
+        }        
         vehicleModel.patchVehicle(data, dataID, (result) =>{
           if (result.affectedRows == 1){
             vehicleModel.getPatchVehicle(dataID, (fin) =>{
@@ -280,6 +310,49 @@ const patchVehicle = (req, res)=>{
   });
 };
 
+const updateVehicle = async (req, res) => {
+  const { id } = req.params;
+  const result = await vehicleModel.getVehicleAsync(id);
+  if (result.length >= 1) {
+    const data = {    };
+    // data["discount"] == data.discount
+    const fillable = ['category_id', 'brand', 'image','price', 'location','qty', 'can_prepayment', 'isAvailable'];
+    fillable.forEach(field => {
+      if (req.body[field]) {
+        return data[field] = req.body[field]; // data.qty = req.body.qty
+      }
+    });
+    console.log(data);
+    try {
+      const resultUpdate = await vehicleModel.updateVehicleAsync(data, id);
+      if (resultUpdate.affectedRows) {
+        const fetchNew = await vehicleModel.getVehicleAsync(id);
+        // const mapResult = fin.map(o => {
+        //   if(o.image!== null){
+        //     o.image = `${APP_URL}/${o.image}`;
+        //   }
+        //   return o;
+        // });
+        return res.json({
+          success: true,
+          message: 'Update Data Success!',
+          result: fetchNew[0]
+        });
+      }
+    } catch (err) {
+      return res.status(500).send({
+        success: false,
+        message: 'Unexpected Error'
+      });
+    }
+  } else {
+    return res.status(400).json({
+      success: false,
+      message: 'Unexpected data'
+    });
+  }
+};
+
 
 const vehiclesCategory = (req, res) => {
   const category = parseInt(req.params.category_id);
@@ -305,4 +378,4 @@ const vehiclesCategory = (req, res) => {
   });
 };
 
-module.exports = {getVehicles, getVehicle, patchVehicle, delVehicle, postVehicle, vehiclesCategory};
+module.exports = {getVehicles, getVehicle, patchVehicle, updateVehicle, delVehicle, postVehicle, vehiclesCategory};
