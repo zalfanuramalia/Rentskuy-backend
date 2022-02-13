@@ -14,6 +14,7 @@ exports.login = async (req, res) => {
     const fin = await bcrypt.compare(password, hash);
     if(fin){
       const token = jwt.sign({id: result[0].id}, APP_SECRET);
+      console.log(token);
       return res.json({
         success: true,
         message: 'Login Success!',
@@ -146,6 +147,32 @@ exports.forgotPass = async (req, res) => {
         message: 'You have to provide Confirmation Code',
       });
     }
+  }
+};
+
+exports.logout = async (req, res) => {
+  try {
+    if (req.headers.authorization) {
+      const token = req.headers.authorization.split(' ')[1];
+      if (token){
+        const fin = jwt.verify(token, APP_SECRET, { expiresIn: 0.06 * 60 });
+        console.log(fin);
+        return res.json({
+          success: true,
+          message: 'Logout Successfully'
+        });
+      } else {
+        return res.status(422).json({
+          success: true,
+          message: 'Token required'
+        });
+      } 
+    }
+  } catch (error) {
+    return res.status(422).json({
+      success: false,
+      message: 'Token not Found'
+    });
   }
 };
 
