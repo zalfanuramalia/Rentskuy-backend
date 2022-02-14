@@ -14,7 +14,6 @@ exports.login = async (req, res) => {
     const fin = await bcrypt.compare(password, hash);
     if(fin){
       const token = jwt.sign({id: result[0].id}, APP_SECRET);
-      console.log(token);
       return res.json({
         success: true,
         message: 'Login Success!',
@@ -37,20 +36,36 @@ exports.login = async (req, res) => {
 exports.register = async (req, res) => {
   const { name, email, username, password:rawPassword } = req.body;
   const {id} = res.length + 1;
-  const salt = await bcrypt.genSalt(10);
-  const password = await bcrypt.hash(rawPassword, salt);
-  const result = await userModel.registerUser({id, name, email, username, password});
-  await userModel.registerByUsername(username);
-  console.log(result);
-  if (result.affectedRows >= 1){
-    return res.send({
-      success: true,
-      message: 'Register Success!',
-    });
+  const mail = await userModel.getUser({email});
+  console.log(mail);
+  if (mail.length < 1){
+    const uname = await userModel.getUname({username});
+    if (uname.length < 1){
+      const salt = await bcrypt.genSalt(10);
+      const password = await bcrypt.hash(rawPassword, salt);
+      const result = await userModel.registerUser({id, name, email, username, password});
+      await userModel.registerByUsername(username);
+      if (result.affectedRows >= 1){
+        return res.send({
+          success: true,
+          message: 'Register Success!'
+        });
+      } else {
+        return res.status(500).send({
+          success: false,
+          message: 'Register Failed!'
+        });
+      }
+    } else {
+      return res.status(400).send({
+        success: false,
+        message: 'Username has been exist'
+      });
+    }
   } else {
-    return res.status(500).send({
+    return res.status(400).send({
       success: false,
-      message: 'Register Failed!'
+      message: 'Email has been exist'
     });
   }
 };
@@ -66,9 +81,9 @@ exports.forgotPass = async (req, res) => {
         const info = await mail.sendMail({
           from: APP_EMAIL,
           to: email,
-          subject: 'Reset Your Password | Backend Beginner',
+          subject: 'Reset Your Password | Vehicles Rent',
           text: String(randomCode),
-          html: `<b>Your Code is ${randomCode}</b>`
+          html: `<b>Your Code for Reset Password is ${randomCode}</b>`
         });
         console.log(info);
         return res.send({
@@ -89,57 +104,62 @@ exports.forgotPass = async (req, res) => {
     }
   } else {
     if (email) {
-      const result = await reqForgotModel.getRequest(code);
-      if (result.length === 1) {
-        if (result[0].isExpired) {
-          return res.status(400).send({
-            success: true,
-            message: 'Expired code',
-          });
-        }
-        const user = await reqForgotModel.getUser(result[0].id_user);
-        if (user[0].email === email) {
-          if (password) {
-            if (password === confirmPass) {
-              const salt = await bcrypt.genSalt(20);
-              const hash = await bcrypt.hash(password, salt);
-              const update = await userModel.updateUser({ password: hash }, user[0].id);
-              if (update.affectedRows === 1) {
-                await reqForgotModel.updateRequest({ isExpired: 1 }, result[0].id);
-                return res.send({
-                  success: true,
-                  message: 'Password has been reset!',
-                });
+      try {
+        const result = await reqForgotModel.getRequest(code);
+        if (result.length === 1) {
+          if (result[0].isExpired) {
+            return res.status(400).send({
+              success: true,
+              message: 'Expired code',
+            });
+          }
+          const user = await reqForgotModel.getUser(result[0].id_user);
+          if (user[0].email === email) {
+            if (password) {
+              if (password === confirmPass) {
+                const salt = await bcrypt.genSalt(10);
+                const hash = await bcrypt.hash(password, salt);
+                const update = await userModel.updateUser({ password: hash }, user[0].id);
+                if (update.affectedRows === 1) {
+                  await reqForgotModel.updateRequest({ isExpired: 1 }, result[0].id);
+                  return res.send({
+                    success: true,
+                    message: 'Password has been reset!',
+                  });
+                } else {
+                  return res.status(500).send({
+                    success: true,
+                    message: 'Unexpected Error',
+                  });
+                }
               } else {
-                return res.status(500).send({
+                return res.status(400).send({
                   success: true,
-                  message: 'Unexpected Error',
+                  message: 'Confirm password not same as password',
                 });
               }
             } else {
               return res.status(400).send({
                 success: true,
-                message: 'Confirm password not same as password',
+                message: 'Password is mandatory!',
               });
-            }
+            } 
+
           } else {
+            console.log(user);
             return res.status(400).send({
               success: true,
-              message: 'Password is mandatory!',
+              message: 'Invalid Email',
             });
           }
         } else {
-          console.log(user);
           return res.status(400).send({
             success: true,
-            message: 'Invalid Email',
+            message: 'Invalid code',
           });
         }
-      } else {
-        return res.status(400).send({
-          success: true,
-          message: 'Invalid code',
-        });
+      }catch(err){
+        console.log(err);
       }
     } else {
       return res.status(400).send({
