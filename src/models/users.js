@@ -44,13 +44,13 @@ exports.delUser = (id, cb) => {
   });
 };
 
-exports.patchUser = (data, id, cb) => {
-  db.query('UPDATE users SET name = ? , identity = ? , gender = ? , email =  ? , address = ? , number = ? , birthdate = ? WHERE id = ?', 
-    [data.name, data.identity, data.gender, data.email, data.address, data.number, data.birthdate, id], (error, res) => {
-      if (error) throw error;
-      cb(res);
-    });
-};
+exports.patchUser = (data, id) => new Promise ((resolve, reject) =>{
+  db.query('UPDATE `users` SET ? WHERE id=?', [data, id], (error, res) => {
+    if (error) reject (error);
+    resolve(res);
+  });
+});
+  
 
 exports.userByUsername = (username) => new Promise ((resolve, reject) => {
   db.query('SELECT id, username, password FROM users WHERE username = ?', [username], (err, res) => {

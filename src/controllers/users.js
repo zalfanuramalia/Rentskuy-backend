@@ -141,7 +141,7 @@ const delUser = (req, res) => {
   userModel.delUser(dataID, process);
 };
 
-const patchUser = (req, res)=>{
+const patchUser = async (req, res)=>{
   const dataID = parseInt(req.params.id);
   if(!dataID){
     return res.status(400).send({
@@ -149,46 +149,52 @@ const patchUser = (req, res)=>{
       message: 'ID must be number!'
     });
   }
-  const data = {
-    name: req.body.name,
-    identity: parseInt(req.body.identity),
-    gender: req.body.gender,
-    email: req.body.email,
-    address: req.body.address,
-    number: req.body.number,
-    birthdate: req.body.birthdate,
-    username: req.body.username,
-    password: req.body.password
-  };
-  const em = data.email.indexOf('@');
-  if (em < 1){
-    return res.status(400).send({
-      success: false,
-      message: 'Enter email correctly'
+  const result = await userModel.dataUser(dataID);
+  if (result.length >= 1) {
+    const data = {    };
+    // data["discount"] == data.discount
+    const fillable = ['name', 'identity', 'gender','email', 'address','number', 'birthdate'];
+    fillable.forEach(field => {
+      if (req.body[field]) {
+        return data[field] = req.body[field]; // data.qty = req.body.qty
+      }
     });
-  }
-  if(!data.identity){
-    return res.status(400).send({
-      success: false,
-      message: 'Identity must be number!'
-    });
-  }
-  const ress = (result) =>{
-    if (result.affectedRows == 1){
-      return res.send({
-        success: true,
-        message: 'Data User Updated',
-        result: req.body
-      });
-    } else {
-      return res.status(404).send({
+    console.log(data);
+    try {
+      const resultUpdate = await userModel.patchUser(data, dataID);
+      if (resultUpdate.affectedRows) {
+        const fetchNew = await userModel.dataUser(dataID);
+        return res.json({
+          success: true,
+          message: 'Update Data Success!',
+          result: fetchNew[0]
+        });
+      }
+    } catch (err) {
+      return res.status(500).send({
         success: false,
-        message: 'Data Users not Found with that ID'
+        message: 'Unexpected Error'
       });
     }
-        
-  };
-  userModel.patchUser(data, dataID, ress);  
+  } else {
+    return res.status(400).json({
+      success: false,
+      message: 'Unexpected data'
+    });
+  }
+  // const em = data.email.indexOf('@');
+  // if (em < 1){
+  //   return res.status(400).send({
+  //     success: false,
+  //     message: 'Enter email correctly'
+  //   });
+  // }
+  // if(!data.identity){
+  //   return res.status(400).send({
+  //     success: false,
+  //     message: 'Identity must be number!'
+  //   });
+  // }
 };
 
 
