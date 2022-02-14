@@ -6,9 +6,8 @@ const dataHistory = (req, res) => {
   search = search || '';
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 5;
-  tool = tool || '';
+  tool = tool || 'id';
   sort = sort || '';
-  loc = loc || '';
   const offset = (page - 1) * limit;
   const data = { search, page, limit, offset, tool, sort, loc };
   if(data.limit < 0 && data.page < 0){
