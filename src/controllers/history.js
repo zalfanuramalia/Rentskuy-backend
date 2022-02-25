@@ -88,19 +88,44 @@ const detailHistory = (req, res)=>{
 };
 
 const popularVehicles = (req, res) => {
-  historyModel.popularVehicles((result) => {
-    if (result.length> 0){
-      return res.send({
-        success: true,
-        message: 'Most Popular Vehicles',
-        result
-      });
-    } else {
-      return res.status(404).send({
-        success: false,
-        message: 'There is no Popular Vehicles'
-      });
-    }
+  let {search, page, limit, tool, sort, loc} = req.query;
+  search = search || '';
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 4;
+  tool = tool || 'id';
+  sort = sort || '';
+  const offset = (page - 1) * limit;
+  const data = { search, page, limit, offset, tool, sort, loc };
+  historyModel.popularVehicles(data, (result) => {
+    const processedResult = result.map((obj) => {
+      if(obj.image !== null){
+        obj.image = `${APP_URL}/${obj.image}`;
+      }
+      return obj;
+    });
+    historyModel.countHistory(data,(count) => {
+      const { total } = count[0];
+      const last = Math.ceil(total/limit);
+      if (result.length> 0){
+        return res.send({
+          success: true,
+          message: 'Most Popular Vehicles',
+          result: processedResult,
+          pageInfo: {
+            prev: page > 1 ? `http://localhost:3000/history?page=${page-1}`: null,
+            next: page < last ? `http://localhost:3000/history?page=${page+1}`: null,
+            totalData:total,
+            currentPage: page,
+            lastPage: last
+          }
+        });
+      } else {
+        return res.status(404).send({
+          success: false,
+          message: 'There is no Popular Vehicles'
+        });
+      }
+    });
   });       
 };
 

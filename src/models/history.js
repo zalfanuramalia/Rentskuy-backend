@@ -21,8 +21,8 @@ exports.detailHistory = (dataID, cb) => {
   });
 };
 
-exports.popularVehicles = (cb) => {
-  db.query('SELECT COUNT(*) AS mostPopular, v.brand AS vehicleName, h.id_vehicles AS IDV, v.category_id AS Category, v.price*50/100 AS minPrepayment, v.location AS Location, v.createdAt AS NewData FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC', (err, res) => {
+exports.popularVehicles = (data, cb) => {
+  db.query(`SELECT COUNT(*) AS mostPopular, v.brand AS brand, v.image AS image, h.id_vehicles AS id, v.category_id AS Category, v.price*50/100 AS minPrepayment, v.location AS Location, v.createdAt AS NewData FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE v.brand LIKE '%${data.search}%'  GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
     if (err) throw err;
     cb(res);
   });
