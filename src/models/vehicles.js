@@ -1,7 +1,7 @@
 const db = require ('../helpers/database');
 
-exports.vehiclesCategory = (category, cb) => {
-  db.query('SELECT v.brand, c.name as categoryName FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE category_id = ?',
+exports.vehiclesCategory = (data, category, cb) => {
+  db.query(`SELECT v.*, c.name as type  FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE category_id = ? && brand LIKE '%${data.search}%' LIMIT ${data.limit} OFFSET ${data.offset} `,
     [category], (err, res) => {
       if (err) throw err;
       cb(res);
@@ -9,7 +9,7 @@ exports.vehiclesCategory = (category, cb) => {
 };
 
 exports.getVehicles = (data, cb) => {
-  db.query(`SELECT v.*, c.name AS categoryName FROM vehicles V LEFT JOIN category c ON v.category_id=c.id WHERE brand LIKE '%${data.search}%' ORDER BY ${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+  db.query(`SELECT v.*, c.name AS type FROM vehicles V LEFT JOIN category c ON v.category_id=c.id WHERE brand LIKE '%${data.search}%' ORDER BY ${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
     if (err) throw err;
     cb(res);
   });
@@ -30,8 +30,8 @@ exports.getVehicle = (id, cb) => {
 };
 
 exports.patchVehicle = ( data, dataID, cb) => {
-  db.query('UPDATE vehicles SET category_id = ? , brand = ?, image = ?, price = ?, location = ?, qty = ?, can_prepayment = ?, isAvailable = ? WHERE id = ?', 
-    [data.category_id, data.brand, data.image, data.price, data.location, data.qty, data.can_prepayment, data.isAvailable, dataID], (error, res) => {
+  db.query('UPDATE vehicles SET ? WHERE id = ?', 
+    [data, dataID], (error, res) => {
       if (error) throw error;
       cb(res);
     });
@@ -95,7 +95,12 @@ exports.getPostVehicle = (cb) => {
   });
 };
 
-
+// exports.getBrand = (data1) => new Promise ((resolve, reject) => {
+//   db.query('SELECT brand FROM vehicles WHERE brand = ?',[data1.brand], (err, res) => {
+//     if (err) reject (err);
+//     resolve(res);
+//   });
+// });
 
 
 
