@@ -78,14 +78,13 @@ exports.forgotPass = async (req, res) => {
       const randomCode = Math.floor(Math.pow(10, 6-1) + Math.random() * (Math.pow(10, 6) - Math.pow(10, 6-1) - 1));
       const reset = await reqForgotModel.createRequest(user[0].id, randomCode);
       if (reset.affectedRows >= 1) {
-        const info = await mail.sendMail({
+        await mail.sendMail({
           from: APP_EMAIL,
           to: email,
           subject: 'Reset Your Password | Vehicles Rent',
           text: String(randomCode),
           html: `<b>Your Code for Reset Password is ${randomCode}</b>`
         });
-        console.log(info);
         return res.send({
           success: true,
           message: 'Forgot Password request has been sent to your email!',
