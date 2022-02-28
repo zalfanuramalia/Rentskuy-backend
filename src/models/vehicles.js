@@ -1,5 +1,13 @@
 const db = require ('../helpers/database');
 
+exports.vehiclesOnLocation = (data, location, cb) => {
+  db.query(`SELECT v.*, c.name as type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE v.location = ? && brand LIKE '%${data.search}%' ORDER BY v.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`,
+    [location], (err, res) => {
+      if (err) throw err;
+      cb(res);
+    });
+};
+
 exports.vehiclesCategory = (data, category, cb) => {
   db.query(`SELECT v.*, c.name as type  FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE category_id = ? && brand LIKE '%${data.search}%' LIMIT ${data.limit} OFFSET ${data.offset} `,
     [category], (err, res) => {
@@ -9,7 +17,7 @@ exports.vehiclesCategory = (data, category, cb) => {
 };
 
 exports.getVehicles = (data, cb) => {
-  db.query(`SELECT v.*, c.name AS type FROM vehicles V LEFT JOIN category c ON v.category_id=c.id WHERE brand LIKE '%${data.search}%' ORDER BY ${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+  db.query(`SELECT v.*, c.name AS type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE v.location = '${data.location}' && c.name = '${data.type}' && v.payment = '${data.payment}' && brand LIKE '%${data.search}%' ORDER BY v.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
     if (err) throw err;
     cb(res);
   });

@@ -4,14 +4,18 @@ const upload = require('../helpers/upload').single('image');
 // const fs = require('fs');
 
 const getVehicles = (req, res)=>{
-  let { search, page, limit, tool, sort } = req.query;
+  let { search, page, limit, tool, sort, location, type, payment, date } = req.query;
   search = search || '';
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 4;
-  tool = tool || 'id';
-  sort = sort || '';
+  tool = tool || 'price';
+  location = location || 'Yogyakarta';
+  sort = sort || '' ;
+  type = type || 'Car';
+  date = date || '';
+  payment = payment ||  'cash';
   const offset = (page - 1) * limit;
-  const data = { search, limit, offset, tool, sort};
+  const data = { search, limit, offset, tool, sort, location, type, payment, date};
   if(data.limit < 0 && data.page < 0){
     return res.status(400).send({
       success: false,
@@ -402,4 +406,64 @@ const vehiclesCategory = (req, res) => {
   });
 };
 
-module.exports = {getVehicles, getVehicle, patchVehicle, updateVehicle, delVehicle, postVehicle, vehiclesCategory};
+const vehiclesOnLocation = (req, res) => {
+  const location = req.params.location;
+  let { search, page, limit} = req.query;
+  search = search || '';
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 4;
+  const offset = (page - 1) * limit;
+  const data = { search, limit, offset};
+  if(data.limit < 0 && data.page < 0){
+    return res.status(400).send({
+      success: false,
+      message: 'Page and Limit Must be More Than 0'
+    });
+  }
+  if(data.limit < 0){
+    return res.status(400).send({
+      success: false,
+      message: 'Limit Must be More Than 0'
+    });
+  }
+  if(data.page < 0){
+    return res.status(400).send({
+      success: false,
+      message: 'Page Must be More Than 0'
+    });
+  }
+  
+  vehicleModel.vehiclesOnLocation(data, location, results => {
+    const processedResult = results.map((obj) => {
+      if(obj.image !== null){
+        obj.image = `${APP_URL}/${obj.image}`;
+      }
+      return obj;
+    });
+    vehicleModel.countVehicles(data, (count) => {
+      const { total } = count[0];
+      const last = Math.ceil(total/limit);
+      if (results.length > 0){
+        return res.send({
+          success: true,
+          message: 'Data Category',
+          results: processedResult,
+          pageInfo: {
+            prev: page > 1 ? `http://localhost:8080/vehicles?page=${page-1}`: null,
+            next: page < last ? `http://localhost:8080/vehicles?page=${page+1}`: null,
+            totalData:total,
+            currentPage: page,
+            lastPage: last
+          }
+        });
+      } else {
+        return res.status(404).send({
+          success: false,
+          message: 'There is Data Category Vehicles with that ID'
+        });
+      }
+    });        
+  });
+};
+
+module.exports = {getVehicles, getVehicle, patchVehicle, updateVehicle, delVehicle, postVehicle, vehiclesCategory, vehiclesOnLocation};
