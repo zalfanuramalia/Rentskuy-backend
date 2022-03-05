@@ -7,9 +7,9 @@ const { APP_SECRET, APP_EMAIL } = process.env;
 
 
 exports.login = async (req, res) => {
-  const { username, password } = req.body;
-  const result = await userModel.userByUsername(username);
-  if(result.length === 1){
+  const { email, password } = req.body;
+  const result = await userModel.userByUsername(email);
+  if(result.length > 0){
     const {password: hash} = result[0];
     const fin = await bcrypt.compare(password, hash);
     if(fin){
@@ -17,16 +17,16 @@ exports.login = async (req, res) => {
       return res.json({
         success: true,
         message: 'Login Success!',
-        result: {token}
+        results: {token}
       });
     } else {
-      return res.status(403).json({
+      return res.status(401).json({
         success: false,
         message: 'Wrong username or password!'
       });
     }
   } else {
-    return res.status(403).json({
+    return res.status(401).json({
       success: false,
       message: 'Wrong username or password!'
     });
