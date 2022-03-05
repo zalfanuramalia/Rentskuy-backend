@@ -10,6 +10,8 @@ route.use('/category', require('./category'));
 
 route.use('/auth', require('./auth'));
 
+route.use('/profile', require('./profile'));
+
 route.get('/', (req, res) => {
   return res.json({
     success: true,
