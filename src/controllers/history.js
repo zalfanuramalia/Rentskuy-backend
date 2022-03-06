@@ -122,7 +122,7 @@ const popularVehicles = (req, res) => {
       } else {
         return res.status(404).send({
           success: false,
-          message: 'There is no Popular Vehicles'
+          message: 'Data Not Found!'
         });
       }
     });
