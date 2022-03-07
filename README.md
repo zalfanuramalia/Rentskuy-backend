@@ -16,6 +16,6 @@ berisi Application Programming Interface (API) menggunakan aplikasi Visual Studi
 4. category.js
 5. auth.js
 
-## Deployment Frontend
+## Deployment Backend
 
 www.heroku.com
