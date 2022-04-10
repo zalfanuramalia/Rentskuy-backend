@@ -22,12 +22,14 @@ const postCategories = (req, res) => {
     id: res.length + 1,
     name: req.body.name
   };
-  categoryModel.postCategories(data, (result) =>{
+  categoryModel.postCategories(data, (result) =>{    
     if (result.affectedRows == 1){
-      return res.send({
-        success: true,
-        message: 'Data Posted',
-        result
+      categoryModel.detailCategories((results) =>{
+        return res.send({
+          success: true,
+          message: 'Data Posted',
+          result: results[0]
+        });
       });
     } else {
       return res.status(404).send({
@@ -35,7 +37,6 @@ const postCategories = (req, res) => {
         message: 'Data not Posted'
       });
     }
-      
   }); 
 };
 

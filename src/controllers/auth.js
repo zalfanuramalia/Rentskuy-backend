@@ -34,17 +34,17 @@ exports.login = async (req, res) => {
 };
 
 exports.register = async (req, res) => {
-  const { name, email, username, password:rawPassword } = req.body;
+  const { name, email, password:rawPassword } = req.body;
   const {id} = res.length + 1;
   const mail = await userModel.getUser({email});
   console.log(mail);
   if (mail.length < 1){
-    const uname = await userModel.getUname({username});
+    const uname = await userModel.getUname({email});
     if (uname.length < 1){
       const salt = await bcrypt.genSalt(10);
       const password = await bcrypt.hash(rawPassword, salt);
-      const result = await userModel.registerUser({id, name, email, username, password});
-      await userModel.registerByUsername(username);
+      const result = await userModel.registerUser({id, name, email, password});
+      await userModel.registerByUsername(email);
       if (result.affectedRows >= 1){
         return res.send({
           success: true,

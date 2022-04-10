@@ -1,7 +1,8 @@
 const db = require ('../helpers/database');
+const {APP_URL} = process.env;
 
 exports.dataHistory = (data, cb) => {
-  db.query(`SELECT u.name as userFullName, v.brand as vehicleName, v.image AS image, start_rent, v.qty AS Quantity, v.price AS Price, v.price*50/100 AS minPrepayment, v.location AS Location, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE v.brand LIKE '%${data.search}%' ORDER BY v.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+  db.query(`SELECT h.id_users, u.name as userFullName, v.brand as vehicleName, v.image AS image, start_rent, v.qty AS Quantity, v.price AS Price, v.price*50/100 AS minPrepayment, v.location AS Location, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE v.brand LIKE '%${data.search}%' ORDER BY v.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
     if (err) throw err;
     cb(res);
   });
@@ -14,18 +15,26 @@ exports.countHistory = (data, cb) => {
   });
 };
 
-exports.detailHistory = (dataID, cb) => {
-  db.query('SELECT u.name as userFullName, h.id_users AS usersId, v.brand as vehicleName, h.id_vehicles AS vehiclesId, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id = ?',[dataID], (err, res) => {
+exports.detailHistory = (id_users, cb) => {
+  db.query(`SELECT u.name as userFullName, h.id_users AS usersId, CONCAT('${APP_URL}/', v.image) as image, v.brand as vehicleName, h.id_vehicles AS vehiclesId, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id_users = ? ORDER BY h.id DESC`,[id_users], (err, res) => {
+    if (err) throw err;
+    cb(res);
+  });
+};
+
+exports.detailHistoryUser = (id, cb) => {
+  db.query(`SELECT u.name as userFullName, h.id_users AS usersId, CONCAT('${APP_URL}/', v.image) as image, v.brand as vehicleName, h.id_vehicles AS vehiclesId, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id_users = ? ORDER BY h.id DESC`,[id], (err, res) => {
     if (err) throw err;
     cb(res);
   });
 };
 
 exports.popularVehicles = (data, cb) => {
-  db.query(`SELECT COUNT(*) AS mostPopular, v.brand AS brand, v.image AS image, h.id_vehicles AS id, v.category_id AS Category, v.price*50/100 AS minPrepayment, v.location AS Location, v.createdAt AS NewData FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE v.brand LIKE '%${data.search}%'  GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+  const ap = db.query(`SELECT COUNT(*) AS mostPopular, v.brand AS brand, v.image AS image, h.id_vehicles AS id, v.category_id AS Category, v.price*50/100 AS minPrepayment, v.location AS Location, v.createdAt AS NewData, v.payment AS payment FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE v.brand LIKE '%${data.search}%' OR v.location = '${data.location}' OR v.payment = '${data.payment}' GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
     if (err) throw err;
     cb(res);
   });
+  console.log(ap.sql);
 };
 
 exports.popularBasedonMonth = (data, cb) => {
@@ -36,7 +45,7 @@ exports.popularBasedonMonth = (data, cb) => {
 };
 
 exports.postHistory = (data2, cb) => {
-  db.query('INSERT INTO history (id_users, id_vehicles, returned, new_arrival) VALUES (? , ? , ? , ?)',[data2.id_users, data2.id_vehicles, data2.returned, data2.new_arrival], (error, res) => {
+  db.query('INSERT INTO history (id_users, id_vehicles, returned) VALUES (? , ? , ?)',[data2.id_users, data2.id_vehicles, data2.returned], (error, res) => {
     if (error) throw error;
     cb(res);
   });

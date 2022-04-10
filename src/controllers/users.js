@@ -1,5 +1,7 @@
 const userModel = require('../models/users');
 const bcrypt = require('bcrypt');
+const upload = require('../helpers/upload').single('image');
+const {APP_URL} = process.env;
 
 const dataUsers = (req, res) => {
   let {search, page, limit } = req.query;
@@ -78,30 +80,42 @@ const dataUser = (req, res) => {
 };
 
 const postUser = async (req, res) => {
-  const { name, identity, gender, email, address, number, birthdate, username, password: rawPassword } = req.body;
-  const {id} = res.length + 1;
-  const salt = await bcrypt.genSalt(10);
-  const password = await bcrypt.hash(rawPassword, salt);
-  if(!identity){
-    return res.status(400).send({
-      success: false,
-      message: 'Identity must be number!'
-    });
-  }
-  const result = await userModel.postUser({id, name, identity, gender, email, address, number, birthdate, username, password});
-  const get = await userModel.getPostUser();
-  if (result.affectedRows >= 1){
-    return res.send({
-      success: true,
-      message: 'Data User Posted',
-      result: get
-    });
-  } else {
-    return res.status(500).send({
-      success: false,
-      message: 'Data not Posted'
-    });
-  }
+  upload(req, res, async function(err){
+    if (err){
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    }
+    const { name, identity, gender, email, address, number, birthdate, username, password: rawPassword } = req.body;
+    const {id} = res.length + 1;
+    const salt = await bcrypt.genSalt(10);
+    const passwords = await bcrypt.hash(rawPassword, salt);
+    const data = { name, identity, gender, email, address, number, birthdate, username, passwords};
+    if(req.file){
+      data.image = `uploads/${req.file.filename}`;
+    }
+    if(!identity){
+      return res.status(400).send({
+        success: false,
+        message: 'Identity must be number!'
+      });
+    }
+    const result = await userModel.postUser({id, data});
+    const get = await userModel.getPostUser();
+    if (result.affectedRows >= 1){
+      return res.send({
+        success: true,
+        message: 'Data User Posted',
+        result: get
+      });
+    } else {
+      return res.status(500).send({
+        success: false,
+        message: 'Data not Posted'
+      });
+    }
+  });
 };
 
 const delUser = (req, res) => {
@@ -142,59 +156,73 @@ const delUser = (req, res) => {
 };
 
 const patchUser = async (req, res)=>{
-  const dataID = parseInt(req.params.id);
-  if(!dataID){
-    return res.status(400).send({
-      success: false,
-      message: 'ID must be number!'
-    });
-  }
-  const result = await userModel.dataUser(dataID);
-  if (result.length >= 1) {
-    const data = {    };
-    // data["discount"] == data.discount
-    const fillable = ['name', 'identity', 'gender','email', 'address','number', 'birthdate'];
-    fillable.forEach(field => {
-      if (req.body[field]) {
-        return data[field] = req.body[field]; // data.qty = req.body.qty
-      }
-    });
-    console.log(data);
-    try {
-      const resultUpdate = await userModel.patchUser(data, dataID);
-      if (resultUpdate.affectedRows) {
-        const fetchNew = await userModel.dataUser(dataID);
-        return res.json({
-          success: true,
-          message: 'Update Data Success!',
-          result: fetchNew[0]
-        });
-      }
-    } catch (err) {
-      return res.status(500).send({
+  upload (req, res, async function(err){
+    if(err){
+      return res.status(400).json({
         success: false,
-        message: 'Unexpected Error'
+        message: err.message
       });
     }
-  } else {
-    return res.status(400).json({
-      success: false,
-      message: 'Unexpected data'
-    });
-  }
-  // const em = data.email.indexOf('@');
-  // if (em < 1){
-  //   return res.status(400).send({
-  //     success: false,
-  //     message: 'Enter email correctly'
-  //   });
-  // }
-  // if(!data.identity){
-  //   return res.status(400).send({
-  //     success: false,
-  //     message: 'Identity must be number!'
-  //   });
-  // }
+    const dataID = parseInt(req.params.id);
+    if(!dataID){
+      return res.status(400).send({
+        success: false,
+        message: 'ID must be number!'
+      });
+    }
+    const result = await userModel.dataUser(dataID);
+    if (result.length >= 1) {
+      const data = {    };
+      const fillable = ['name', 'gender','email', 'address','number', 'birthdate'];
+      fillable.forEach(field => {
+        if (req.body[field]) {
+          return data[field] = req.body[field]; // data.qty = req.body.qty
+        }
+      });
+      
+      if(req.file){
+        data.image = `uploads/${req.file.filename}`;
+      }
+      console.log(req.body, req.file);
+      // console.log(data);
+      // const em = data.email.indexOf('@');
+      // if (em < 1){
+      //   return res.status(400).send({
+      //     success: false,
+      //     message: 'Enter email correctly'
+      //   });
+      // }
+      try {
+        const resultUpdate = await userModel.patchUser(data, dataID);
+        if (resultUpdate.affectedRows) {
+          const fetchNew = await userModel.dataUser(dataID);
+          console.log(fetchNew);
+          const mapResults = fetchNew.map(o => {
+            if(o.image!== null){
+              o.image = `${APP_URL}/${o.image}`;
+            }
+            return o;
+          });
+          return res.json({
+            success: true,
+            message: 'Update Data Success!',
+            result: mapResults[0]
+          });
+        }
+      } catch (err) {
+        console.log(err);
+        // return res.status(500).send({
+        //   success: false,
+        //   message: 'Unexpected Error'
+        // });
+      }
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Unexpected data'
+      });
+    }
+  });
 };
 
 

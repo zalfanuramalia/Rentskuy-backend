@@ -52,8 +52,8 @@ exports.patchUser = (data, id) => new Promise ((resolve, reject) =>{
 });
   
 
-exports.userByUsername = (username) => new Promise ((resolve, reject) => {
-  db.query('SELECT id, username, password FROM users WHERE username = ?', [username], (err, res) => {
+exports.userByUsername = (email) => new Promise ((resolve, reject) => {
+  db.query('SELECT id, email, password FROM users WHERE email = ?', [email], (err, res) => {
     if (err) reject (err);
     resolve(res);
   });
@@ -69,7 +69,7 @@ exports.registerUser = (data2) => new Promise ((resolve, reject) => {
 });
 
 exports.registerByUsername = (username) => new Promise ((resolve, reject) => {
-  db.query('SELECT id, email, username, password FROM users WHERE username = ? OR email = ?', [username, username], (err, res) => {
+  db.query('SELECT id, email, username FROM users WHERE username = ? OR email = ?', [username, username], (err, res) => {
     if (err) reject (err);
     resolve(res);
   });
@@ -81,3 +81,18 @@ exports.updateUser = (data, id) => new Promise((resolve, reject) => {
     resolve(res);
   });
 });
+
+exports.getUser = (data) => new Promise ((resolve, reject) => {
+  db.query('SELECT name FROM users WHERE email = ?',[data.email], (err, res) => {
+    if (err) reject (err);
+    resolve(res);
+  });
+});
+
+exports.getUname = (data) => new Promise ((resolve, reject) => {
+  db.query('SELECT name FROM users WHERE email = ?',[data.email], (err, res) => {
+    if (err) reject (err);
+    resolve(res);
+  });
+});
+

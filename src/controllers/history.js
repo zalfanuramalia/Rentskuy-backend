@@ -38,8 +38,8 @@ const dataHistory = (req, res) => {
           message: 'Data History',
           result,
           pageInfo: {
-            prev: page > 1 ? `http://localhost:3000/history?page=${page-1}`: null,
-            next: page < last ? `http://localhost:3000/history?page=${page+1}`: null,
+            prev: page > 1 ? `http://localhost:8080/history?page=${page-1}`: null,
+            next: page < last ? `http://localhost:8080/history?page=${page+1}`: null,
             totalData:total,
             currentPage: page,
             lastPage: last
@@ -50,8 +50,8 @@ const dataHistory = (req, res) => {
           success: false,
           message: 'You must input correctly',
           pageInfo: {
-            prev: page > 1 ? `http://localhost:3000/history?page=${page-1}`: null,
-            next: page < last ? `http://localhost:3000/history?page=${page+1}`: null,
+            prev: page > 1 ? `http://localhost:8080/history?page=${page-1}`: null,
+            next: page < last ? `http://localhost:8080/history?page=${page+1}`: null,
             totalData:total,
             currentPage: page,
             lastPage: last
@@ -65,12 +65,12 @@ const dataHistory = (req, res) => {
 
 const detailHistory = (req, res)=>{
   const dataID = parseInt(req.params.id);
-  if (!dataID){
-    return res.status(400).send({
-      success: false,
-      message: 'Data ID must be Number'
-    });
-  }
+  // if (!dataID){
+  //   return res.status(400).send({
+  //     success: false,
+  //     message: 'Data ID must be Number'
+  //   });
+  // }
   historyModel.detailHistory(dataID, (results) => {
     if (results.length > 0){
       return res.send({
@@ -87,15 +87,41 @@ const detailHistory = (req, res)=>{
   });
 };
 
+const detailHistoryUser = (req, res)=>{
+  const dataID = parseInt(req.params.id);
+  if (!dataID){
+    return res.status(400).send({
+      success: false,
+      message: 'Data ID must be Number'
+    });
+  }
+  historyModel.detailHistory(dataID, (results) => {
+    if (results.length > 0){
+      return res.send({
+        success: true,
+        message: 'List Detail User',
+        results
+      });
+    } else {
+      return res.status(404).send({
+        success: false,
+        message: 'There is no Vehicles with that ID'
+      });
+    }        
+  });
+};
+
 const popularVehicles = (req, res) => {
-  let {search, page, limit, tool, sort, loc} = req.query;
+  let {search, page, limit, tool, sort, location, payment} = req.query;
   search = search || '';
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 4;
-  tool = tool || 'id';
+  location = location || '';
+  payment = payment || '';
+  tool = tool || '';
   sort = sort || '';
   const offset = (page - 1) * limit;
-  const data = { search, page, limit, offset, tool, sort, loc };
+  const data = { search, page, limit, offset, tool, sort, location, payment};
   historyModel.popularVehicles(data, (result) => {
     const processedResult = result.map((obj) => {
       if(obj.image !== null){
@@ -112,8 +138,8 @@ const popularVehicles = (req, res) => {
           message: 'Most Popular Vehicles',
           result: processedResult,
           pageInfo: {
-            prev: page > 1 ? `http://localhost:3000/history?page=${page-1}`: null,
-            next: page < last ? `http://localhost:3000/history?page=${page+1}`: null,
+            prev: page > 1 ? `http://localhost:8080/history/vehicles?page=${page-1}`: null,
+            next: page < last ? `http://localhost:8080/history/vehicles?page=${page+1}`: null,
             totalData:total,
             currentPage: page,
             lastPage: last
@@ -195,27 +221,26 @@ const postHistory = (req, res) => {
     id: res.length + 1,
     id_users: parseInt(req.body.id_users),
     id_vehicles: parseInt(req.body.id_vehicles),
-    returned: req.body.returned,
-    new_arrival: req.body.new_arrival,
+    returned: 'No',
   };
-  if (!data2.id_users && !data2.id_vehicles){
-    return res.status(400).send({
-      success: false,
-      message: 'ID user and vehicles must be filled with number!'
-    });
-  }
-  if (!data2.id_users){
-    return res.status(400).send({
-      success: false,
-      message: 'ID user must be filled with number!'
-    });
-  }
-  if (!data2.id_vehicles){
-    return res.status(400).send({
-      success: false,
-      message: 'ID vehicles must be filled with number!'
-    });
-  }
+  // if (!data2.id_users && !data2.id_vehicles){
+  //   return res.status(400).send({
+  //     success: false,
+  //     message: 'ID user and vehicles must be filled with number!'
+  //   });
+  // }
+  // if (!data2.id_users){
+  //   return res.status(400).send({
+  //     success: false,
+  //     message: 'ID user must be filled with number!'
+  //   });
+  // }
+  // if (!data2.id_vehicles){
+  //   return res.status(400).send({
+  //     success: false,
+  //     message: 'ID vehicles must be filled with number!'
+  //   });
+  // }
   historyModel.postHistory(data2, (result) =>{
     if (result.affectedRows == 1){
       historyModel.getPostHistory( (result) => {
@@ -326,4 +351,4 @@ const patchHistory = (req, res)=>{
   });
 };
 
-module.exports = {dataHistory, detailHistory, popularVehicles, popularBasedonMonth, postHistory, delHistory, patchHistory};
+module.exports = {dataHistory, detailHistory, detailHistoryUser, popularVehicles, popularBasedonMonth, postHistory, delHistory, patchHistory};

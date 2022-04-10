@@ -12,6 +12,8 @@ route.use('/auth', require('./auth'));
 
 route.use('/profile', require('./profile'));
 
+route.use('/search', require('./search'));
+
 route.get('/', (req, res) => {
   return res.json({
     success: true,

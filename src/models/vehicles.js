@@ -1,7 +1,7 @@
 const db = require ('../helpers/database');
 
 exports.vehiclesOnLocation = (data, location, cb) => {
-  db.query(`SELECT v.*, c.name as type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE v.location = ? && brand LIKE '%${data.search}%' ORDER BY v.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`,
+  db.query(`SELECT v.*, c.name as type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE v.location = ? && brand LIKE '%${data.search}%'  ORDER BY v.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`,
     [location], (err, res) => {
       if (err) throw err;
       cb(res);
@@ -9,15 +9,36 @@ exports.vehiclesOnLocation = (data, location, cb) => {
 };
 
 exports.vehiclesCategory = (data, category, cb) => {
-  db.query(`SELECT v.*, c.name as type  FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE category_id = ? && brand LIKE '%${data.search}%' LIMIT ${data.limit} OFFSET ${data.offset} `,
+  // var filled = ['type', 'payment'];
+  // var resultFillter = '';
+  // filled.forEach((item) => {
+  //   if (data.filter[item]) {
+  //     resultFillter += ` and ${item}='${data.filter[item]}'`;
+  //   }
+  // });
+  const apa = db.query(`SELECT v.*, c.name as type  FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE category_id = ? AND brand LIKE '%${data.search}%' LIMIT ${data.limit} OFFSET ${data.offset} `,
     [category], (err, res) => {
       if (err) throw err;
       cb(res);
     });
+  console.log(apa.sql);
 };
 
-exports.getVehicles = (data, cb) => {
-  db.query(`SELECT v.*, c.name AS type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE v.location = '${data.location}' && c.name = '${data.type}' && v.payment = '${data.payment}' && brand LIKE '%${data.search}%' ORDER BY v.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+exports.countVehiclesSearch = (data, cb) => {
+  // var filled = ['location', 'type', 'payment_id', 'category_id', 'date'];
+  // var resultFillter = '';
+  // filled.forEach((item) => {
+  //   if (data.filter[item]) {
+  //     resultFillter += ` and ${item}='${data.filter[item]}'`;
+  //   }
+  // });
+  // db.query(`SELECT COUNT(*) as total FROM vehicles WHERE brand LIKE '%${data.search}%' ${resultFillter}` , (err, res) => {
+  //   if (err) throw err;
+  //   cb(res);
+  // });
+  db.query(`SELECT COUNT(*) as total FROM vehicles v
+  LEFT JOIN category c ON v.category_id=v.category_id
+  WHERE  v.brand LIKE '%${data.search}%'`, (err, res) => {
     if (err) throw err;
     cb(res);
   });
@@ -25,6 +46,13 @@ exports.getVehicles = (data, cb) => {
 
 exports.countVehicles = (data, cb) => {
   db.query(`SELECT COUNT(*) as total FROM vehicles WHERE brand LIKE '%${data.search}%'` , (err, res) => {
+    if (err) throw err;
+    cb(res);
+  });
+};
+
+exports.getVehicles = (data, cb) => {
+  db.query(`SELECT v.*, c.name AS type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE brand LIKE '%${data.search}%' && v.location = '${data.location}' && c.name = '${data.type}' && v.payment = '${data.payment}' ORDER BY v.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
     if (err) throw err;
     cb(res);
   });
@@ -88,20 +116,20 @@ exports.getDelVehicle = (dataID, cb) => {
   });
 };
 
-exports.postVehicle = (data1, cb) => {
-  db.query('INSERT INTO `vehicles` (category_id, brand, image, price, location, qty, can_prepayment, isAvailable) VALUES (?, ? , ? , ? , ? , ? , ? , ?)',
-    [data1.category_id, data1.brand, data1.image, data1.price, data1.location, data1.qty, data1.can_prepayment, data1.isAvailable], (error, res) => {
-      if (error) throw error;
-      cb(res);
+exports.postVehicle = (data1) => new Promise ((resolve, reject) => {
+  db.query(`INSERT INTO vehicles (category_id, brand, image, price, location, qty, description) VALUES ('${data1.category_id}','${data1.brand}', '${data1.image}','${data1.price}','${data1.location}','${data1.qty}','${data1.description}')`,
+    (error, res) => {
+      if (error) reject (error);
+      resolve(res);
     });
-};
+});
 
-exports.getPostVehicle = (cb) => {
-  db.query('SELECT * FROM vehicles ORDER BY id DESC LIMIT 1', (err, res) => {
-    if (err) throw err;
-    cb(res);
+exports.getPostVehicle = (id) => new Promise ((resolve, reject) => {
+  db.query('SELECT * FROM vehicles WHERE id = ? ORDER BY id DESC LIMIT 1',[id], (error, res) => {
+    if (error) reject (error);
+    resolve(res);
   });
-};
+});
 
 // exports.getBrand = (data1) => new Promise ((resolve, reject) => {
 //   db.query('SELECT brand FROM vehicles WHERE brand = ?',[data1.brand], (err, res) => {

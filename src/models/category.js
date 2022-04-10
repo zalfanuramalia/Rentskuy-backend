@@ -7,6 +7,13 @@ exports.categories = (cb) => {
   });
 };
 
+exports.detailCategories = (cb) => {
+  db.query('SELECT * FROM category ORDER BY id DESC LIMIT 1', (error, res) => {
+    if (error) throw error;
+    cb(res);
+  });
+};
+
 exports.postCategories = (data, cb) => {
   db.query('INSERT INTO category (name) VALUES (?)',[data.name], (err, res) => {
     if (err) throw err;
