@@ -5,7 +5,11 @@ This is a repository containing backend code to fulfill tasks with "Backend Begi
 # Installation
 
 ```
-git clone <url repository> <folder tujuan>
+git clone https://github.com/zalfanuramalia/fw5-backend-beginner.git
+```
+
+```
+npm i
 ```
 
 # fw5-backend-beginner
