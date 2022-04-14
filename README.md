@@ -1,8 +1,22 @@
+# About
+
+This is a repository containing backend code to fulfill tasks with "Backend Beginner" material on Fazztrack
+
+# Installation
+
+```
+git clone https://github.com/zalfanuramalia/fw5-backend-beginner.git
+```
+
+```
+npm i
+```
+
 # fw5-backend-beginner
 
-berisi Application Programming Interface (API) menggunakan aplikasi Visual Studio Code, Node.js sebagai platform, dan express.js sebagai framework dari Node.js, serta Postman sebagai wadah untuk testing API yang telah dibuat.
+Contains an Application Programming Interface (API) using Visual Studio Code applications, Node.js as a platform, and express.js as a framework from Node.js, as well as Postman as a container for testing the API that has been created.
 
-## dibangun dengan
+## Built with
 
 *Node.js
 *Express.js
