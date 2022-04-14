@@ -30,7 +30,7 @@ exports.detailHistoryUser = (id, cb) => {
 };
 
 exports.popularVehicles = (data, cb) => {
-  const ap = db.query(`SELECT COUNT(*) AS mostPopular, v.brand AS brand, v.image AS image, h.id_vehicles AS id, v.category_id AS Category, v.price*50/100 AS minPrepayment, v.location AS Location, v.createdAt AS NewData, v.payment AS payment FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE v.brand LIKE '%${data.search}%' OR v.location = '${data.location}' OR v.payment = '${data.payment}' GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+  const ap = db.query(`SELECT COUNT(*) AS mostPopular, v.brand AS brand, v.image AS image, h.id_vehicles AS id, v.category_id AS Category, v.price, v.price*50/100 AS minPrepayment, v.location AS Location, v.createdAt AS NewData, v.payment AS payment FROM history h LEFT JOIN vehicles v ON v.id = h.id_vehicles WHERE v.brand LIKE '%${data.search}%' OR v.location = '${data.location}' OR v.payment = '${data.payment}' GROUP BY h.id_vehicles ORDER BY COUNT(*) DESC LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
     if (err) throw err;
     cb(res);
   });

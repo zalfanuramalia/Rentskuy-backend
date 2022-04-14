@@ -1,4 +1,5 @@
 const db = require ('../helpers/database');
+const { APP_URL } = process.env;
 
 exports.vehiclesOnLocation = (data, location, cb) => {
   db.query(`SELECT v.*, c.name as type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE v.location = ? && brand LIKE '%${data.search}%'  ORDER BY v.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`,
@@ -9,39 +10,12 @@ exports.vehiclesOnLocation = (data, location, cb) => {
 };
 
 exports.vehiclesCategory = (data, category, cb) => {
-  // var filled = ['type', 'payment'];
-  // var resultFillter = '';
-  // filled.forEach((item) => {
-  //   if (data.filter[item]) {
-  //     resultFillter += ` and ${item}='${data.filter[item]}'`;
-  //   }
-  // });
   const apa = db.query(`SELECT v.*, c.name as type  FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE category_id = ? AND brand LIKE '%${data.search}%' LIMIT ${data.limit} OFFSET ${data.offset} `,
     [category], (err, res) => {
       if (err) throw err;
       cb(res);
     });
   console.log(apa.sql);
-};
-
-exports.countVehiclesSearch = (data, cb) => {
-  // var filled = ['location', 'type', 'payment_id', 'category_id', 'date'];
-  // var resultFillter = '';
-  // filled.forEach((item) => {
-  //   if (data.filter[item]) {
-  //     resultFillter += ` and ${item}='${data.filter[item]}'`;
-  //   }
-  // });
-  // db.query(`SELECT COUNT(*) as total FROM vehicles WHERE brand LIKE '%${data.search}%' ${resultFillter}` , (err, res) => {
-  //   if (err) throw err;
-  //   cb(res);
-  // });
-  db.query(`SELECT COUNT(*) as total FROM vehicles v
-  LEFT JOIN category c ON v.category_id=v.category_id
-  WHERE  v.brand LIKE '%${data.search}%'`, (err, res) => {
-    if (err) throw err;
-    cb(res);
-  });
 };
 
 exports.countVehicles = (data, cb) => {
@@ -52,11 +26,41 @@ exports.countVehicles = (data, cb) => {
 };
 
 exports.getVehicles = (data, cb) => {
-  db.query(`SELECT v.*, c.name AS type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE brand LIKE '%${data.search}%' && v.location = '${data.location}' && c.name = '${data.type}' && v.payment = '${data.payment}' ORDER BY v.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+  db.query(`SELECT v.*, c.name AS type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE brand LIKE '%${data.search}%' LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
     if (err) throw err;
     cb(res);
   });
 };
+
+exports.getVehiclesSearch = (data) => new Promise ((resolve, reject) => {
+  var filled = ['location', 'type', 'payment'];
+  var resultFillter = '';
+  filled.forEach((item) => {
+    if (data.filter[item]) {
+      resultFillter += ` and ${item}='${data.filter[item]}'`;
+    }
+  });
+  const query = db.query(`SELECT v.*, concat('${APP_URL}/',v.image) as image, c.name AS type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE v.brand LIKE '%${data.search}%' ${resultFillter} ${data.date!=='' ? `and h.start_rent = '${data.date}' or h.end_rent='${data.date}'` : ''} order by ${data.sort} ${data.order} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+    if (err) reject(err);
+    resolve(res);
+  });
+  console.log(query.sql);
+});
+
+exports.countVehiclesSearch = (data) => new Promise ((resolve, reject) => {
+  var filled = ['location', 'type', 'payment_id', 'date'];
+  var resultFillter = '';
+  filled.forEach((item) => {
+    if (data.filter[item]) {
+      resultFillter += ` and ${item}='${data.filter[item]}'`;
+    }
+  });
+  db.query(`SELECT COUNT(*) as total FROM vehicles v left join category c on c.id = v.category_id WHERE brand LIKE '%${data.search}%' ${resultFillter}` , (err, res) => {
+    if (err) reject(err);
+    resolve(res);
+  });
+});
+  
 
 exports.getVehicle = (id, cb) => {
   db.query('SELECT * FROM vehicles WHERE id = ?',[id], (err, res) => {
@@ -66,7 +70,7 @@ exports.getVehicle = (id, cb) => {
 };
 
 exports.patchVehicle = ( data, dataID, cb) => {
-  db.query('UPDATE vehicles SET ? WHERE id = ?', 
+  db.query('UPDATE `vehicles` SET ? WHERE id = ?', 
     [data, dataID], (error, res) => {
       if (error) throw error;
       cb(res);

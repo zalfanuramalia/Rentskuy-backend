@@ -1,77 +1,127 @@
 const vehicleModel = require('../models/vehicles');
 const {APP_URL} = process.env;
+const getValid = require('../helpers/getValid');
+const getAPI = require('../helpers/getAPI');
+const moment = require('moment');
 const upload = require('../helpers/upload').single('image');
-// const fs = require('fs');
 
-const getVehicles = (req, res)=>{
-  let { search, page, limit, tool, sort, location, type, payment, date } = req.query;
+const getVehicles = async (req, res)=>{
+  let { search, page, limit, date, sort, order } = req.query;
   search = search || '';
-  page = parseInt(page) || 1;
-  limit = parseInt(limit) || 4;
-  tool = tool || 'price';
-  location = location || 'Bandung';
-  sort = sort || '' ;
-  type = type || 'Car';
+  page = ((page != null && page !== '') ? parseInt(page) : 1);
+  limit = ((limit != null && limit !== '') ? parseInt(limit) : 10);
   date = date || '';
-  payment = payment ||  'cash';
-  const offset = (page - 1) * limit;
-  const data = { search, limit, offset, tool, sort, location, type, payment, date};
-  if(data.limit < 0 && data.page < 0){
-    return res.status(400).send({
-      success: false,
-      message: 'Page and Limit Must be More Than 0'
-    });
+  sort = sort || 'createdAt';
+  var filledFilter = ['location', 'type', 'payment'];
+  var filter = {};
+  order = order || 'desc';
+  let dataJson = { response: res, message: '' };
+  let pagination = { page, limit };
+  var route = 'search?';
+  var searchParam = '';
+  if (search) {
+    searchParam = `search=${search}`;
   }
-  if(data.limit < 0){
-    return res.status(400).send({
-      success: false,
-      message: 'Limit Must be More Than 0'
-    });
+  if (date) {
+    searchParam = `date=${date}`;
   }
-  if(data.page < 0){
-    return res.status(400).send({
-      success: false,
-      message: 'Page Must be More Than 0'
-    });
-  }
-  vehicleModel.getVehicles(data, (result) =>{
-    const processedResult = result.map((obj) => {
-      if(obj.image !== null){
-        obj.image = `${APP_URL}/${obj.image}`;
-      }
-      return obj;
-    });
-    vehicleModel.countVehicles(data, (count) => {
-      const { total } = count[0];
-      const last = Math.ceil(total/limit);
-      if (result.length > 0){
-        return res.send({
-          success: true,
-          message: 'Data Vehicle Found',
-          result: processedResult,
-          pageInfo: {
-            prev: page > 1 ? `http://localhost:8080/vehicles?page=${page-1}`: null,
-            next: page < last ? `http://localhost:8080/vehicles?page=${page+1}`: null,
-            totalData:total,
-            currentPage: page,
-            lastPage: last
-          }
-        });
+  filledFilter.forEach((item) => {
+    if (req.query[item]) {
+      filter[item] = req.query[item];
+      if (searchParam == '') {
+        searchParam += `${item}=${filter[item]}`;
       } else {
-        return res.status(404).send({
-          success: false,
-          message: 'Vehicle Not Found',
-          pageInfo: {
-            prev: page > 1 ? `http://localhost:8080/vehicles?page=${page-1}`: null,
-            next: page < last ? `http://localhost:8080/vehicles?page=${page+1}`: null,
-            totalData:total,
-            currentPage: page,
-            lastPage: last
-          }
-        });
-      }    
-    });
+        searchParam += `&${item}=${filter[item]}`;
+      }
+    }
   });
+  route += searchParam;
+  if (getValid.validationPagination(pagination) == null) {    
+    const offset = (page - 1) * limit;
+    const data = { search, filter, limit, offset, date, sort, order};
+    var dataSearch = await vehicleModel.getVehiclesSearch(data);
+    dataSearch.forEach((item) => {
+      if (item.start_rent !== null && item.end_rent) {
+        item.start_rent = moment(item.start_rent).format('DD MMM YYYY');
+        item.end_rent = moment(item.end_rent).format('DD MMM YYYY');
+      }
+    });
+    try {
+      if (dataSearch.length > 0) {
+        var result = await vehicleModel.countVehiclesSearch(data);
+        const { total } = result[0];
+        pagination = {...pagination, total: total, route: route };
+        dataJson = {...dataJson, message: 'List Data Search.', result: dataSearch, pagination };
+        return getAPI.showSuccessWithPagination(dataJson, pagination);
+      } else{
+        dataJson = {...dataJson, message: 'Data not found', status: 404 };
+        return getAPI.showError(dataJson);
+      }
+    } catch(e) {
+      dataJson = {...dataJson, message: 'Data failed ', status: 500, error: e };
+      return getAPI.showError(dataJson);
+    }
+  } else {
+    dataJson = { response: res, message: 'Pagination was not valid.', error: getValid.validationPagination(pagination), status: 400 };
+    getAPI.showError(dataJson);
+  }
+  // const data = { search, limit, offset, date, sort, order};
+  // if(data.limit < 0 && data.page < 0){
+  //   return res.status(400).send({
+  //     success: false,
+  //     message: 'Page and Limit Must be More Than 0'
+  //   });
+  // }
+  // if(data.limit < 0){
+  //   return res.status(400).send({
+  //     success: false,
+  //     message: 'Limit Must be More Than 0'
+  //   });
+  // }
+  // if(data.page < 0){
+  //   return res.status(400).send({
+  //     success: false,
+  //     message: 'Page Must be More Than 0'
+  //   });
+  // }
+  // vehicleModel.getVehicles(data, (result) =>{
+  //   const processedResult = result.map((obj) => {
+  //     if(obj.image !== null){
+  //       obj.image = `${APP_URL}/${obj.image}`;
+  //     }
+  //     return obj;
+  //   });
+  //   vehicleModel.countVehicles(data, (count) => {
+  //     const { total } = count[0];
+  //     const last = Math.ceil(total/limit);
+  //     if (result.length > 0){
+  //       return res.send({
+  //         success: true,
+  //         message: 'Data Vehicle Found',
+  //         result: processedResult,
+  //         pageInfo: {
+  //           prev: page > 1 ? `http://localhost:5000/vehicles?page=${page-1}`: null,
+  //           next: page < last ? `http://localhost:5000/vehicles?page=${page+1}`: null,
+  //           totalData:total,
+  //           currentPage: page,
+  //           lastPage: last
+  //         }
+  //       });
+  //     } else {
+  //       return res.status(404).send({
+  //         success: false,
+  //         message: 'Vehicle Not Found',
+  //         pageInfo: {
+  //           prev: page > 1 ? `http://localhost:5000/vehicles?page=${page-1}`: null,
+  //           next: page < last ? `http://localhost:5000/vehicles?page=${page+1}`: null,
+  //           totalData:total,
+  //           currentPage: page,
+  //           lastPage: last
+  //         }
+  //       });
+  //     }    
+  //   });
+  // });
 };
 
 const getVehicle = (req, res)=>{
@@ -245,30 +295,30 @@ const patchVehicle = (req, res)=>{
         if(req.file){
           data.image = `uploads/${req.file.filename}`;
         }      
-        if(!parseInt(data.price) && !parseInt(data.qty)){
-          return res.status(400).send({
-            success: false,
-            message: 'Price and Quantity Data must be Number!'
-          });
-        }
-        if(!parseInt(data.price)){
-          return res.status(400).send({
-            success: false,
-            message: 'Price Data must be Number!'
-          });
-        }
-        if(!parseInt(data.qty)){
-          return res.status(400).send({
-            success: false,
-            message: 'Quantity Data must be Number!'
-          });
-        }
-        if (!parseInt(req.body.category_id)){
-          return res.status(400).send({
-            success: false,
-            message: 'ID category must be number!'
-          });
-        } 
+        // if(!parseInt(data.price) && !parseInt(data.qty)){
+        //   return res.status(400).send({
+        //     success: false,
+        //     message: 'Price and Quantity Data must be Number!'
+        //   });
+        // }
+        // if(!parseInt(data.price)){
+        //   return res.status(400).send({
+        //     success: false,
+        //     message: 'Price Data must be Number!'
+        //   });
+        // }
+        // if(!parseInt(data.qty)){
+        //   return res.status(400).send({
+        //     success: false,
+        //     message: 'Quantity Data must be Number!'
+        //   });
+        // }
+        // if (!parseInt(req.body.category_id)){
+        //   return res.status(400).send({
+        //     success: false,
+        //     message: 'ID category must be number!'
+        //   });
+        // } 
         vehicleModel.patchVehicle(data, dataID, (result) =>{
           if (result.affectedRows == 1){
             vehicleModel.getPatchVehicle(dataID, (fin) =>{
