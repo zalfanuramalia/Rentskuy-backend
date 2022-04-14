@@ -24,6 +24,8 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({storage: storage, fileFilter });
+const upload = multer({storage: storage, fileFilter, limits:{
+  fileSize: 2097152
+} });
 
 module.exports = upload;
