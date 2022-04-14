@@ -1,21 +1,15 @@
 const prof = require('../models/profile');
 const userModel = require('../models/users');
+const response = require('../helpers/response');
 
 const getProfile = (req, res)=>{
   const {id} = req.user;
   console.log(id);
   prof.getProfile(id, (result)=>{
     if(result.length>0){
-      return res.json({
-        success: true,
-        message: `User profile with ID: ${id}`,
-        result: result[0]
-      });
+      return response(res, `User profile with ID: ${id}`, result[0], 200);
     }else{
-      return res.status(404).send({
-        success: false,
-        message: `User with ID: ${id} not found`
-      });
+      return response(res, `User with ID: ${id} not found`, null, 404);
     }
   });  
 };
@@ -35,10 +29,7 @@ const updateProfile = async (req, res) => {
     console.log(data);
     const em = data.email.indexOf('@');
     if (em < 1){
-      return res.status(400).send({
-        success: false,
-        message: 'Enter email correctly'
-      });
+      return response(res, 'Enter email correctly', null, 400);
     }
     const result = await userModel.dataUser(id);
     if (result.length >= 1) {      
@@ -47,30 +38,16 @@ const updateProfile = async (req, res) => {
         const resultUpdate = await userModel.patchUser(data, id);
         if (resultUpdate.affectedRows) {
           const fetchNew = await userModel.dataUser(id);
-          return res.json({
-            success: true,
-            message: 'Update Data Success!',
-            result: fetchNew[0]
-          });
+          return response(res, 'Update Data Success!', fetchNew[0], 200);
         }
       } catch (err) {
-        return res.status(500).send({
-          success: false,
-          message: 'Unexpected Error'
-        });
+        return response(res, 'Unexpected Error', null, 500);
       }
     } else {
-      return res.status(400).json({
-        success: false,
-        message: 'Unexpected data'
-      });
+      return response(res, 'Unexpected data', null, 400);
     }
   } catch (e) {
-    return res.status(500).json({
-      success: false,
-      message: 'Unexpected data for update'
-    });
-    // console.log(e);
+    return response(res, 'Unexpected data for update', null, 500);
   }
 };
 

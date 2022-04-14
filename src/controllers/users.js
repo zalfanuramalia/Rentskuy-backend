@@ -2,6 +2,7 @@ const userModel = require('../models/users');
 const bcrypt = require('bcrypt');
 const upload = require('../helpers/upload').single('image');
 const {APP_URL} = process.env;
+const response = require('../helpers/response');
 
 const dataUsers = (req, res) => {
   let {search, page, limit } = req.query;
@@ -11,22 +12,13 @@ const dataUsers = (req, res) => {
   const offset = (page - 1) * limit;
   const data = { search, page, limit, offset };
   if(data.limit < 0 && data.page < 0){
-    return res.status(400).send({
-      success: false,
-      message: 'Page and Limit Must be More Than 0'
-    });
+    return response(res, 'Page and Limit Must be More Than 0', null, 400);
   }
   if(data.limit < 0){
-    return res.status(400).send({
-      success: false,
-      message: 'Limit Must be More Than 0'
-    });
+    return response(res, 'Limit Must be More Than 0', null, 400);
   }
   if(data.page < 0){
-    return res.status(400).send({
-      success: false,
-      message: 'Page Must be More Than 0'
-    });
+    return response(res, 'Page Must be More Than 0', null, 400);
   }
   userModel.dataUsers(data, (result) => {
     userModel.countUsers(data,(count) => {
@@ -46,10 +38,7 @@ const dataUsers = (req, res) => {
           }
         });
       } else {
-        return res.status(404).send({
-          success: false,
-          message: 'Data Users not Found'
-        });
+        return response(res, 'Data Users not Found', null, 404);
       }
     });
   });
@@ -57,24 +46,14 @@ const dataUsers = (req, res) => {
 
 const dataUser = (req, res) => {
   const dataID =parseInt(req.params.id);
-  if (!dataID){
-    return res.status(400).send({
-      success: false,
-      message: 'ID must be number!'
-    });
+  if (isNaN(dataID)===true){
+    return response(res, 'Data ID must be Number', null, 400);
   }
   userModel.dataUser(dataID, (result) => {
     if (result.length > 0){
-      return res.send({
-        success: true,
-        message: 'List Detail User',
-        results: result[0]
-      });
+      return response(res, 'List Detail User',  result[0], 200);
     } else {
-      return res.status(404).send({
-        success: false,
-        message: 'User Not Found'
-      });
+      return response(res, 'User Not Found',  null, 404);
     }
   });
 };
@@ -82,10 +61,7 @@ const dataUser = (req, res) => {
 const postUser = async (req, res) => {
   upload(req, res, async function(err){
     if (err){
-      return res.status(400).json({
-        success: false,
-        message: err.message
-      });
+      return response(res, err.message,  null, 400);
     }
     const { name, identity, gender, email, address, number, birthdate, username, password: rawPassword } = req.body;
     const {id} = res.length + 1;
@@ -95,61 +71,36 @@ const postUser = async (req, res) => {
     if(req.file){
       data.image = `uploads/${req.file.filename}`;
     }
-    if(!identity){
-      return res.status(400).send({
-        success: false,
-        message: 'Identity must be number!'
-      });
+    if(isNaN(identity)===true){
+      return response(res, 'Identity must be number!', null, 400);
     }
     const result = await userModel.postUser({id, data});
     const get = await userModel.getPostUser();
     if (result.affectedRows >= 1){
-      return res.send({
-        success: true,
-        message: 'Data User Posted',
-        result: get
-      });
+      return response(res, 'Data User Posted', get, 200);
     } else {
-      return res.status(500).send({
-        success: false,
-        message: 'Data not Posted'
-      });
+      return response(res, 'Data not Posted', null, 500);
     }
   });
 };
 
 const delUser = (req, res) => {
   const dataID = parseInt(req.params.id);
-  if(!dataID){
-    return res.status(400).send({
-      success: false,
-      message: 'ID must be number!'
-    });
-  }    
+  if (isNaN(dataID)===true){
+    return response(res, 'Data ID must be Number', null, 400);
+  }   
   const process = (result) => {
     if (result.affectedRows == 1){
       const ress = (result) =>{
         if(result.length > 0){
-          return res.status(500).send({
-            success: false,
-            message : 'User failed to Delete',
-            result
-          });
+          return response(res, 'User failed to Delete', result, 500);
         } else {
-          return res.send({
-            success: true,
-            message : 'User was Delete',
-            result
-          });
+          return response(res, 'User was Delete', result, 200);
         }
       };
       userModel.delUser( dataID, ress);
     } else {
-      return res.status(404).send({
-        success: false,
-        message: 'There is no User with that ID ',
-        result
-      });
+      return response(res, 'There is no User with that ID ', null, 404);
     }
   };
   userModel.delUser(dataID, process);
@@ -157,18 +108,12 @@ const delUser = (req, res) => {
 
 const patchUser = async (req, res)=>{
   upload (req, res, async function(err){
-    if(err){
-      return res.status(400).json({
-        success: false,
-        message: err.message
-      });
+    if (err){
+      return response(res, err.message,  null, 400);
     }
     const dataID = parseInt(req.params.id);
-    if(!dataID){
-      return res.status(400).send({
-        success: false,
-        message: 'ID must be number!'
-      });
+    if (isNaN(dataID)===true){
+      return response(res, 'Data ID must be Number', null, 400);
     }
     const result = await userModel.dataUser(dataID);
     if (result.length >= 1) {
@@ -184,14 +129,11 @@ const patchUser = async (req, res)=>{
         data.image = `uploads/${req.file.filename}`;
       }
       console.log(req.body, req.file);
-      // console.log(data);
-      // const em = data.email.indexOf('@');
-      // if (em < 1){
-      //   return res.status(400).send({
-      //     success: false,
-      //     message: 'Enter email correctly'
-      //   });
-      // }
+      console.log(data);
+      const em = data.email.indexOf('@');
+      if (em < 1){
+        return response(res, 'Enter email correctly', null, 400);
+      }
       try {
         const resultUpdate = await userModel.patchUser(data, dataID);
         if (resultUpdate.affectedRows) {
@@ -203,24 +145,14 @@ const patchUser = async (req, res)=>{
             }
             return o;
           });
-          return res.json({
-            success: true,
-            message: 'Update Data Success!',
-            result: mapResults[0]
-          });
+          return response(res, 'Update Data Success!', mapResults[0], 200);
         }
       } catch (err) {
-        console.log(err);
-        // return res.status(500).send({
-        //   success: false,
-        //   message: 'Unexpected Error'
-        // });
+        // console.log(err);
+        return response(res, 'Unexpected Error', null, 500);
       }
     } else {
-      return res.status(400).json({
-        success: false,
-        message: 'Unexpected data'
-      });
+      return response(res, 'Unexpected data', null, 400);
     }
   });
 };

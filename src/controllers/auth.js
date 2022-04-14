@@ -3,6 +3,7 @@ const reqForgotModel = require('../models/forgotReq');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mail = require('../helpers/mail');
+const response = require('../helpers/response');
 const { APP_SECRET, APP_EMAIL } = process.env;
 
 
@@ -14,22 +15,12 @@ exports.login = async (req, res) => {
     const fin = await bcrypt.compare(password, hash);
     if(fin){
       const token = jwt.sign({id: result[0].id}, APP_SECRET);
-      return res.json({
-        success: true,
-        message: 'Login Success!',
-        results: {token}
-      });
+      return response(res, 'Login Success!', {token}, 200);
     } else {
-      return res.status(401).json({
-        success: false,
-        message: 'Wrong username or password!'
-      });
+      return response(res, 'Wrong username or password!', null, 401);
     }
   } else {
-    return res.status(401).json({
-      success: false,
-      message: 'Wrong username or password!'
-    });
+    return response(res, 'Wrong username or password!', null, 401);
   }
 };
 
@@ -46,27 +37,15 @@ exports.register = async (req, res) => {
       const result = await userModel.registerUser({id, name, email, password});
       await userModel.registerByUsername(email);
       if (result.affectedRows >= 1){
-        return res.send({
-          success: true,
-          message: 'Register Success!'
-        });
+        return response(res, 'Register Success!', null, 200);
       } else {
-        return res.status(500).send({
-          success: false,
-          message: 'Register Failed!'
-        });
+        return response(res, 'Register Failed!', null, 500);
       }
     } else {
-      return res.status(400).send({
-        success: false,
-        message: 'Username has been exist'
-      });
+      return response(res, 'Username has been exist', null, 400);
     }
   } else {
-    return res.status(400).send({
-      success: false,
-      message: 'Email has been exist'
-    });
+    return response(res, 'Email has been exist', null, 400);
   }
 };
 
@@ -85,21 +64,12 @@ exports.forgotPass = async (req, res) => {
           text: String(randomCode),
           html: `<b>Your Code for Reset Password is ${randomCode}</b>`
         });
-        return res.send({
-          success: true,
-          message: 'Forgot Password request has been sent to your email!',
-        });
+        return response(res, 'Forgot Password request has been sent to your email!', null, 200);
       } else {
-        return res.status(500).send({
-          success: true,
-          message: 'Unexpected Error',
-        });
+        return response(res, 'Unexpected Error', null, 500);
       }
     } else {
-      return res.send({
-        success: true,
-        message: 'If you registered, reset password code will sended to your email!',
-      });
+      return response(res, 'If you registered, reset password code will sended to your email!', null, 200);
     }
   } else {
     if (email) {
@@ -107,10 +77,7 @@ exports.forgotPass = async (req, res) => {
         const result = await reqForgotModel.getRequest(code);
         if (result.length === 1) {
           if (result[0].isExpired) {
-            return res.status(400).send({
-              success: true,
-              message: 'Expired code',
-            });
+            return response(res, 'Expired code', null, 400);
           }
           const user = await reqForgotModel.getUser(result[0].id_user);
           if (user[0].email === email) {
@@ -121,77 +88,29 @@ exports.forgotPass = async (req, res) => {
                 const update = await userModel.updateUser({ password: hash }, user[0].id);
                 if (update.affectedRows === 1) {
                   await reqForgotModel.updateRequest({ isExpired: 1 }, result[0].id);
-                  return res.send({
-                    success: true,
-                    message: 'Password has been reset!',
-                  });
+                  return response(res, 'Password has been reset!', null, 200);
                 } else {
-                  return res.status(500).send({
-                    success: true,
-                    message: 'Unexpected Error',
-                  });
+                  return response(res, 'Unexpected Error', null, 500);
                 }
               } else {
-                return res.status(400).send({
-                  success: true,
-                  message: 'Confirm password not same as password',
-                });
+                return response(res, 'Confirm password not same as password', null, 400);
               }
             } else {
-              return res.status(400).send({
-                success: true,
-                message: 'Password is mandatory!',
-              });
+              return response(res, 'Password is mandatory!', null, 400);
             } 
 
           } else {
-            console.log(user);
-            return res.status(400).send({
-              success: true,
-              message: 'Invalid Email',
-            });
+            return response(res, 'Invalid Email', null, 400);
           }
         } else {
-          return res.status(400).send({
-            success: true,
-            message: 'Invalid code',
-          });
+          return response(res, 'Invalid code', null, 400);
         }
       }catch(err){
-        console.log(err);
+        return response(res, 'Error Email', null, 500);
       }
     } else {
-      return res.status(400).send({
-        success: true,
-        message: 'You have to provide Confirmation Code',
-      });
+      return response(res, 'You have to provide Confirmation Code', null, 400);
     }
-  }
-};
-
-exports.logout = async (req, res) => {
-  try {
-    if (req.headers.authorization) {
-      const token = req.headers.authorization.split(' ')[1];
-      if (token){
-        const fin = jwt.verify(token, APP_SECRET, { expiresIn: 0.06 * 60 });
-        console.log(fin);
-        return res.json({
-          success: true,
-          message: 'Logout Successfully'
-        });
-      } else {
-        return res.status(422).json({
-          success: true,
-          message: 'Token required'
-        });
-      } 
-    }
-  } catch (error) {
-    return res.status(422).json({
-      success: false,
-      message: 'Token not Found'
-    });
   }
 };
 
@@ -202,29 +121,15 @@ exports.verify = (req, res) => {
     if (token) {
       try {
         if (jwt.verify(token, APP_SECRET)) {
-          return res.json({
-            success: true,
-            message: 'User Verify!',
-            result: {token}
-          });
+          return response(res, 'User Verify!', {token}, 200);
         } else {
-          return res.json({
-            success: false,
-            message: 'User not Verify!',
-            result: {token}
-          });
+          return response(res, 'User not Verify!', null, 400);
         }
       } catch (err) {
-        return res.status(400).json({
-          success: false,
-          message: 'User not Verify!',
-        });
+        return response(res, 'User not Verify!', null, 400);
       }
     } else {
-      return res.status(403).json({
-        success: false,
-        message: 'Token must be provided!'
-      });
+      return response(res, 'Token must be provided!', null, 403);
     }
   }
 };

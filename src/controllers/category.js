@@ -1,18 +1,12 @@
 const categoryModel = require('../models/category');
+const response = require('../helpers/response');
 
 const categories = (req, res)=>{
   categoryModel.categories((result) =>{
     if (result.length > 0){
-      return res.send({
-        success: true,
-        message: 'Vehicles Categories',
-        result,                    
-      });
+      return response(res, 'Vehicles Categories', result, 200);
     } else {
-      return res.status(404).send({
-        success: false,
-        message: 'Vehicle Categiroes Not Found',
-      });
+      return response(res, 'Vehicle Categiroes Not Found', null, 404);
     }    
   });
 };
@@ -25,17 +19,10 @@ const postCategories = (req, res) => {
   categoryModel.postCategories(data, (result) =>{    
     if (result.affectedRows == 1){
       categoryModel.detailCategories((results) =>{
-        return res.send({
-          success: true,
-          message: 'Data Posted',
-          result: results[0]
-        });
+        return response(res, 'Data Posted', results[0], 200);
       });
     } else {
-      return res.status(404).send({
-        success: false,
-        message: 'Data not Posted'
-      });
+      return response(res, 'Data not Posted', null, 404);
     }
   }); 
 };
@@ -43,34 +30,20 @@ const postCategories = (req, res) => {
 const delCategories = (req, res) => {
   const dataID = parseInt(req.params.id);
   if (!dataID){
-    return res.status(400).send({
-      success: false,
-      message: 'ID must be number!'
-    });
+    return response(res, 'ID must be number!', null, 400);
   }
   const process = (result) => {
     if (result.affectedRows == 1){
       const ress = (result) =>{
         if(result.length > 0){
-          return res.status(500).send({
-            success: false,
-            message : 'Category Failed to Delete',
-            result
-          });
+          return response(res, 'Category Failed to Delete', result, 500);
         } else {
-          return res.send({
-            success: true,
-            message : 'Category was Delete',
-            result
-          });
+          return response(res, 'Category was Delete', result, 200);
         }
       };
       categoryModel.delCategories( dataID, ress);
     } else {
-      return res.status(404).send({
-        success: false,
-        message: 'There is no Category with that ID ',
-      });
+      return response(res, 'There is no Category with that ID ', null, 404);
     }
   };
   categoryModel.delCategories(dataID, process);
@@ -79,26 +52,16 @@ const delCategories = (req, res) => {
 const patchCategory = (req, res)=>{
   const dataID = parseInt(req.params.id);
   if (!dataID){
-    return res.status(400).send({
-      success: false,
-      message: 'ID must be number!'
-    });
+    return response(res, 'ID must be number!', null, 400);
   }
   const data = {
     name: req.body.name,
   };
   const ress = (result) =>{
     if (result.affectedRows == 1){
-      return res.send({
-        success: true,
-        message: 'Data Category Updated',
-        result: req.body
-      });
+      return response(res, 'Data Category Updated', req.body, 200);
     } else {
-      return res.status(404).send({
-        success: false,
-        message: 'Data Category not Found'
-      });
+      return response(res, 'Data Category not Found', null, 404);
     }
       
   };

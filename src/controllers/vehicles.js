@@ -4,6 +4,7 @@ const getValid = require('../helpers/getValid');
 const getAPI = require('../helpers/getAPI');
 const moment = require('moment');
 const upload = require('../helpers/upload').single('image');
+const response = require('../helpers/response');
 
 const getVehicles = async (req, res)=>{
   let { search, page, limit, date, sort, order } = req.query;
@@ -65,78 +66,15 @@ const getVehicles = async (req, res)=>{
     dataJson = { response: res, message: 'Pagination was not valid.', error: getValid.validationPagination(pagination), status: 400 };
     getAPI.showError(dataJson);
   }
-  // const data = { search, limit, offset, date, sort, order};
-  // if(data.limit < 0 && data.page < 0){
-  //   return res.status(400).send({
-  //     success: false,
-  //     message: 'Page and Limit Must be More Than 0'
-  //   });
-  // }
-  // if(data.limit < 0){
-  //   return res.status(400).send({
-  //     success: false,
-  //     message: 'Limit Must be More Than 0'
-  //   });
-  // }
-  // if(data.page < 0){
-  //   return res.status(400).send({
-  //     success: false,
-  //     message: 'Page Must be More Than 0'
-  //   });
-  // }
-  // vehicleModel.getVehicles(data, (result) =>{
-  //   const processedResult = result.map((obj) => {
-  //     if(obj.image !== null){
-  //       obj.image = `${APP_URL}/${obj.image}`;
-  //     }
-  //     return obj;
-  //   });
-  //   vehicleModel.countVehicles(data, (count) => {
-  //     const { total } = count[0];
-  //     const last = Math.ceil(total/limit);
-  //     if (result.length > 0){
-  //       return res.send({
-  //         success: true,
-  //         message: 'Data Vehicle Found',
-  //         result: processedResult,
-  //         pageInfo: {
-  //           prev: page > 1 ? `http://localhost:5000/vehicles?page=${page-1}`: null,
-  //           next: page < last ? `http://localhost:5000/vehicles?page=${page+1}`: null,
-  //           totalData:total,
-  //           currentPage: page,
-  //           lastPage: last
-  //         }
-  //       });
-  //     } else {
-  //       return res.status(404).send({
-  //         success: false,
-  //         message: 'Vehicle Not Found',
-  //         pageInfo: {
-  //           prev: page > 1 ? `http://localhost:5000/vehicles?page=${page-1}`: null,
-  //           next: page < last ? `http://localhost:5000/vehicles?page=${page+1}`: null,
-  //           totalData:total,
-  //           currentPage: page,
-  //           lastPage: last
-  //         }
-  //       });
-  //     }    
-  //   });
-  // });
 };
 
 const getVehicle = (req, res)=>{
   const dataID = parseInt(req.params.id);
-  if (!dataID){
-    return res.status(400).send({
-      success: false,
-      message: 'Data ID must be Number'
-    });
+  if (isNaN(dataID)===true){
+    return response(res, 'Data ID must be Number', null, 400);
   }
   if(dataID == ''){
-    return res.status(400).send({
-      success: false,
-      message: 'ID is required'        
-    });
+    return response(res, 'ID is required', null, 400);
   }
   vehicleModel.getVehicle(dataID, results => {
     const processedResult = results.map((obj) => {
@@ -147,50 +85,30 @@ const getVehicle = (req, res)=>{
     });
     console.log(processedResult);
     if (results.length > 0){
-      return res.send({
-        success: true,
-        message: 'List Detail Vehicle',
-        results: results[0]
-      });
+      return response(res, 'List Detail Vehicle', results[0], 200);
     } else {
-      return res.status(404).send({
-        success: false,
-        message: 'There is no Vehicles with that ID'
-      });
+      return response(res, 'There is no Vehicles with that ID', null, 404);
     }        
   });
 };
 
 const delVehicle = (req, res) => {
   const dataID = parseInt(req.params.id) || null;
-  if(!dataID){
-    return res.status(400).send({
-      success: false,
-      message: 'ID must be Number!'
-    });
+  if (isNaN(dataID)===true){
+    return response(res, 'Data ID must be Number', null, 400);
   }
   vehicleModel.getDelVehicle(dataID, (result) => {
     vehicleModel.delVehicle(dataID, () => {
       if (result.affectedRows !== 1){
         vehicleModel.delVehicle(dataID, () => {
           if(result.length > 0){
-            return res.send({
-              success: false,
-              message : 'Vehicle Data Success Deleted',
-              result
-            });
+            return response(res, 'Vehicle Data Success Deleted', result, 200);
           } else {
-            return res.status(404).send({
-              success: true,
-              message : 'Vehicle Data not Found',
-            });
+            return response(res, 'Vehicle Data not Found', null, 404);
           }
         });
       } else {
-        return res.status(500).send({
-          success: false,
-          message: 'Vehicle Data failed to Delete'
-        });
+        return response(res, 'Vehicle Data failed to Delete', null, 500);
       }
     });
   });
@@ -198,11 +116,8 @@ const delVehicle = (req, res) => {
 
 const postVehicle = async (req, res) => {
   upload(req, res, async function(err){
-    if(err){
-      return res.status(400).json({
-        success: false,
-        message: err.message
-      });
+    if (err){
+      return response(res, err.message,  null, 400);
     }
     try {
       const data1 = {  };
@@ -215,29 +130,17 @@ const postVehicle = async (req, res) => {
       if(req.file){
         data1.image = `uploads/${req.file.filename}`;
       }
-      if(!data1.price && !data1.qty){
-        return res.status(400).send({
-          success: false,
-          message: 'Price and Quantity Data must be Number!'
-        });
+      if(isNaN(data1.price)===true && isNaN(data1.qty)===true){
+        return response(res, 'Price and Quantity Data must be Number!',  null, 400);
       }
-      if(!data1.price){
-        return res.status(400).send({
-          success: false,
-          message: 'Price Data must be Number!'
-        });
+      if(isNaN(data1.price)===true){
+        return response(res, 'Price Data must be Number!',  null, 400);
       }
-      if(!data1.qty){
-        return res.status(400).send({
-          success: false,
-          message: 'Quantity Data must be Number!'
-        });
+      if(isNaN(data1.qty)===true){
+        return response(res, 'Quantity Data must be Number!', null, 400);
       }
-      if(!data1.category_id){
-        return res.status(400).send({
-          success: false,
-          message: 'ID category must be Number!'
-        });
+      if(isNaN(data1.category_id)===true){
+        return response(res, 'ID category must be Number!', null, 400);
       }
       const results = await vehicleModel.postVehicle(data1);
       if (results.affectedRows == 1){
@@ -248,37 +151,25 @@ const postVehicle = async (req, res) => {
           }
           return o;
         });
-        return res.send({
-          success: true,
-          message: 'Vehicle data created!',
-          results: mapResults[0]
-        });
+        return response(res, 'Vehicle data created!', mapResults[0], 200);
       } else {
-        return res.status(404).send({
-          success: false,
-          message: 'Unexpected Data'
-        });
+        return response(res, 'Unexpected Data', null, 404);
       }
     } catch (e) {
-      console.log(e);
+      return response(res, 'Unexpected Error', null, 500);
+      // console.log(e);
     }
   });
 };
 
 const patchVehicle = (req, res)=>{
   upload(req, res, function(err){
-    if(err){
-      return res.status(400).json({
-        success: false,
-        message: err.message
-      });
+    if (err){
+      return response(res, err.message,  null, 400);
     }
     const dataID = parseInt(req.params.id);
-    if (!dataID){
-      return res.status(400).send({
-        success: false,
-        message: 'ID must be number!'
-      });
+    if (isNaN(dataID)===true){
+      return response(res, 'Data ID must be Number', null, 400);
     }
     vehicleModel.getPatchVehicle(dataID, (result) => {
       console.log(result);
@@ -295,30 +186,18 @@ const patchVehicle = (req, res)=>{
         if(req.file){
           data.image = `uploads/${req.file.filename}`;
         }      
-        // if(!parseInt(data.price) && !parseInt(data.qty)){
-        //   return res.status(400).send({
-        //     success: false,
-        //     message: 'Price and Quantity Data must be Number!'
-        //   });
-        // }
-        // if(!parseInt(data.price)){
-        //   return res.status(400).send({
-        //     success: false,
-        //     message: 'Price Data must be Number!'
-        //   });
-        // }
-        // if(!parseInt(data.qty)){
-        //   return res.status(400).send({
-        //     success: false,
-        //     message: 'Quantity Data must be Number!'
-        //   });
-        // }
-        // if (!parseInt(req.body.category_id)){
-        //   return res.status(400).send({
-        //     success: false,
-        //     message: 'ID category must be number!'
-        //   });
-        // } 
+        if(isNaN(data.price)===true && isNaN(data.qty)===true){
+          return response(res, 'Price and Quantity Data must be Number!',  null, 400);
+        }
+        if(isNaN(data.price)===true){
+          return response(res, 'Price Data must be Number!',  null, 400);
+        }
+        if(isNaN(data.qty)===true){
+          return response(res, 'Quantity Data must be Number!', null, 400);
+        }
+        if(isNaN(data.category_id)===true){
+          return response(res, 'ID category must be Number!', null, 400);
+        }
         vehicleModel.patchVehicle(data, dataID, (result) =>{
           if (result.affectedRows == 1){
             vehicleModel.getPatchVehicle(dataID, (fin) =>{
@@ -328,24 +207,14 @@ const patchVehicle = (req, res)=>{
                 }
                 return o;
               });
-              return res.send({
-                success: true,
-                message: 'Update Vehicle Data Success!',
-                results: mapResult[0]
-              });
+              return response(res, 'Update Vehicle Data Success!', mapResult[0], 200);
             });
           } else {
-            return res.status(404).send({
-              success: false,
-              message: 'Unexpected Error!',
-            });          
+            return response(res, 'Unexpected Error!', null, 404);     
           }   
         });
       } else {
-        return res.status(404).send({
-          success: false,
-          message: 'Unexpected Data'
-        });
+        return response(res, 'Unexpected Data', null, 404); 
       }   
     });
   });
@@ -368,29 +237,13 @@ const updateVehicle = async (req, res) => {
       const resultUpdate = await vehicleModel.updateVehicleAsync(data, id);
       if (resultUpdate.affectedRows) {
         const fetchNew = await vehicleModel.getVehicleAsync(id);
-        // const mapResult = fin.map(o => {
-        //   if(o.image!== null){
-        //     o.image = `${APP_URL}/${o.image}`;
-        //   }
-        //   return o;
-        // });
-        return res.json({
-          success: true,
-          message: 'Update Data Success!',
-          result: fetchNew[0]
-        });
+        return response(res, 'Update Data Success!', fetchNew[0], 200); 
       }
     } catch (err) {
-      return res.status(500).send({
-        success: false,
-        message: 'Unexpected Error'
-      });
+      return response(res, 'Unexpected Error', null, 500); 
     }
   } else {
-    return res.status(400).json({
-      success: false,
-      message: 'Unexpected data'
-    });
+    return response(res, 'Unexpected data', null, 400);
   }
 };
 
@@ -422,22 +275,13 @@ const vehiclesCategory = (req, res) => {
   const offset = (page - 1) * limit;
   const data = { search, limit, offset, tool, sort};
   if(data.limit < 0 && data.page < 0){
-    return res.status(400).send({
-      success: false,
-      message: 'Page and Limit Must be More Than 0'
-    });
+    return response(res, 'Page and Limit Must be More Than 0', null, 400);
   }
   if(data.limit < 0){
-    return res.status(400).send({
-      success: false,
-      message: 'Limit Must be More Than 0'
-    });
+    return response(res, 'Limit Must be More Than 0', null, 400);
   }
   if(data.page < 0){
-    return res.status(400).send({
-      success: false,
-      message: 'Page Must be More Than 0'
-    });
+    return response(res, 'Page Must be More Than 0', null, 400);
   }
   
   vehicleModel.vehiclesCategory(data, category, results => {
@@ -464,10 +308,7 @@ const vehiclesCategory = (req, res) => {
           }
         });
       } else {
-        return res.status(404).send({
-          success: false,
-          message: 'Data Not Found!'
-        });
+        return response(res, 'Data Not Found!', null, 404);
       }
     });        
   });
@@ -485,22 +326,13 @@ const vehiclesOnLocation = (req, res) => {
   const offset = (page - 1) * limit;
   const data = { search, limit, offset, tool, sort, type};
   if(data.limit < 0 && data.page < 0){
-    return res.status(400).send({
-      success: false,
-      message: 'Page and Limit Must be More Than 0'
-    });
+    return response(res, 'Page and Limit Must be More Than 0', null, 400);
   }
   if(data.limit < 0){
-    return res.status(400).send({
-      success: false,
-      message: 'Limit Must be More Than 0'
-    });
+    return response(res, 'Limit Must be More Than 0', null, 400);
   }
   if(data.page < 0){
-    return res.status(400).send({
-      success: false,
-      message: 'Page Must be More Than 0'
-    });
+    return response(res, 'Page Must be More Than 0', null, 400);
   }
   
   vehicleModel.vehiclesOnLocation(data, location, results => {
@@ -527,10 +359,7 @@ const vehiclesOnLocation = (req, res) => {
           }
         });
       } else {
-        return res.status(404).send({
-          success: false,
-          message: 'There is Data Category Vehicles with that ID'
-        });
+        return response(res, 'There is Data Category Vehicles with that ID', null, 404);
       }
     });        
   });
