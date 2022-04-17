@@ -6,9 +6,9 @@ const dataHistory = (req, res) => {
   let {search, page, limit, tool, sort, loc} = req.query;
   search = search || '';
   page = ((page != null && page !== '') ? parseInt(page) : 1);
-  limit = ((limit != null && limit !== '') ? parseInt(limit) : 5);
+  limit = ((limit != null && limit !== '') ? parseInt(limit) : 50);
   tool = tool || 'id';
-  sort = sort || '';
+  sort = sort || 'desc';
   const offset = (page - 1) * limit;
   const data = { search, page, limit, offset, tool, sort, loc };
   if(data.limit < 0 && data.page < 0){
@@ -78,7 +78,7 @@ const detailHistoryUser = (req, res)=>{
     if (results.length > 0){
       return response(res, 'List Detail User', results, 200);
     } else {
-      return response(res, 'There is no Vehicles with that ID', null, 404);
+      return response(res, 'You haven\'t ordered anything', null, 404);
     }        
   });
 };
@@ -108,7 +108,7 @@ const popularVehicles = (req, res) => {
         return res.send({
           success: true,
           message: 'Most Popular Vehicles',
-          result: processedResult,
+          results: processedResult,
           pageInfo: {
             prev: page > 1 ? `http://localhost:5000/history/vehicles?page=${page-1}`: null,
             next: page < last ? `http://localhost:5000/history/vehicles?page=${page+1}`: null,

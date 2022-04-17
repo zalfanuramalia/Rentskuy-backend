@@ -2,7 +2,7 @@ const db = require ('../helpers/database');
 const {APP_URL} = process.env;
 
 exports.dataHistory = (data, cb) => {
-  db.query(`SELECT h.id_users, u.name as userFullName, v.brand as vehicleName, v.image AS image, start_rent, v.qty AS Quantity, v.price AS Price, v.price*50/100 AS minPrepayment, v.location AS Location, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE v.brand LIKE '%${data.search}%' ORDER BY v.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+  db.query(`SELECT h.id, h.id_users, u.name as userFullName, v.brand as vehicleName, concat('${APP_URL}/',v.image) as image, start_rent, v.qty AS Quantity, v.price AS Price, v.price*50/100 AS minPrepayment, v.location AS Location, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE v.brand LIKE '%${data.search}%' ORDER BY h.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
     if (err) throw err;
     cb(res);
   });

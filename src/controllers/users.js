@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const upload = require('../helpers/upload').single('image');
 const {APP_URL} = process.env;
 const response = require('../helpers/response');
+var validator = require('validator');
 
 const dataUsers = (req, res) => {
   let {search, page, limit } = req.query;
@@ -130,7 +131,8 @@ const patchUser = async (req, res)=>{
       }
       console.log(req.body, req.file);
       console.log(data);
-      const em = data.email.indexOf('@');
+      
+      const em = validator.isEmail(data.email);
       if (em < 1){
         return response(res, 'Enter email correctly', null, 400);
       }

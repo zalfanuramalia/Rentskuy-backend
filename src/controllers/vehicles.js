@@ -186,17 +186,17 @@ const patchVehicle = (req, res)=>{
         if(req.file){
           data.image = `uploads/${req.file.filename}`;
         }      
-        if(isNaN(data.price)===true && isNaN(data.qty)===true){
-          return response(res, 'Price and Quantity Data must be Number!',  null, 400);
+        if((parseInt(data.price)===true || isNaN(data.price)===true) && (parseInt(data.qty)===true || isNaN(data.qty)===true)){
+          return response(res, 'Price and Quantity Data must be Filled or Number!',  null, 400);
         }
-        if(isNaN(data.price)===true){
-          return response(res, 'Price Data must be Number!',  null, 400);
+        if(parseInt(data.price)===true && isNaN(data.price)===true){
+          return response(res, 'Price Data must be Filled or Number!',  null, 400);
         }
-        if(isNaN(data.qty)===true){
-          return response(res, 'Quantity Data must be Number!', null, 400);
+        if(parseInt(data.qty)===true && isNaN(data.qty)===true){
+          return response(res, 'Quantity Data must be Filled or Number!', null, 400);
         }
-        if(isNaN(data.category_id)===true){
-          return response(res, 'ID category must be Number!', null, 400);
+        if(parseInt(data.category_id)===true && isNaN(data.category_id)===true){
+          return response(res, 'ID category must be Filled or Number!', null, 400);
         }
         vehicleModel.patchVehicle(data, dataID, (result) =>{
           if (result.affectedRows == 1){
@@ -291,7 +291,7 @@ const vehiclesCategory = (req, res) => {
       }
       return obj;
     });
-    vehicleModel.countVehiclesSearch(data, (count) => {
+    vehicleModel.countVehicles(data, (count) => {
       const { total } = count[0];
       const last = Math.ceil(total/limit);
       if (results.length > 0){

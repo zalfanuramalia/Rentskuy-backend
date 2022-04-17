@@ -27,10 +27,10 @@ const updateProfile = async (req, res) => {
       }
     });
     console.log(data);
-    const em = data.email.indexOf('@');
-    if (em < 1){
-      return response(res, 'Enter email correctly', null, 400);
-    }
+    // const em = data.email.indexOf('@');
+    // if (em < 1){
+    //   return response(res, 'Enter email correctly', null, 400);
+    // }
     const result = await userModel.dataUser(id);
     if (result.length >= 1) {      
       console.log(data);      
