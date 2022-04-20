@@ -4,19 +4,24 @@ This repository contains the backend application code with the application name 
 
 # Installation
 
+1. Clone this repository
 ```
 git clone https://github.com/zalfanuramalia/fw5-backend-beginner.git
 ```
 
+2. Install module
 ```
 npm i
 ```
+
+3. import Database vehicle_rent.sql
+4. for run the project, write `nmp run dev` in terminal
 
 # Rentskuy
 
 Contains an Application Programming Interface (API) using Visual Studio Code applications, Node.js as a platform, and express.js as a framework from Node.js, as well as Postman as a container for testing the API that has been created.
 
-## Built with
+# Built with
 
 * Node.js
 * Express.js
