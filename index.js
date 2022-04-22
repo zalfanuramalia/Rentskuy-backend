@@ -10,8 +10,8 @@ app.use(cors());
 app.use(require('./src/routes'));
 app.use('/uploads', express.static('uploads'));
 
-const {PORT, APP_PORT} = process.env;
+const APP_PORT = process.env.PORT || 3000;
 
-app.listen(PORT || APP_PORT, ()=>{
-  console.log(`App running on port ${PORT, APP_PORT}` );
+app.listen(APP_PORT, ()=>{
+  console.log(`App running on port ${APP_PORT}` );
 });
