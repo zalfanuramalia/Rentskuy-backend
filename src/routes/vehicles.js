@@ -5,7 +5,7 @@ const {getVehicles, getVehicle, patchVehicle, updateVehicle, delVehicle, postVeh
 const {adminVerify} = require('../helpers/auth');
 
 vehicles.get('/', cors(),  getVehicles);
-vehicles.post('/', cors(), adminVerify, postVehicle);
+vehicles.post('/', cors(), postVehicle);
 vehicles.get('/category/:category_id', cors(),  vehiclesCategory);
 vehicles.get('/:id', cors(), getVehicle);
 vehicles.patch('/category/:id', adminVerify, cors(), updateVehicle);
