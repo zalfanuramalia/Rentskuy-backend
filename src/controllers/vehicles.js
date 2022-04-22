@@ -7,64 +7,68 @@ const upload = require('../helpers/upload').single('image');
 const response = require('../helpers/response');
 
 const getVehicles = async (req, res)=>{
-  let { search, page, limit, date, sort, order } = req.query;
-  search = search || '';
-  page = ((page != null && page !== '') ? parseInt(page) : 1);
-  limit = ((limit != null && limit !== '') ? parseInt(limit) : 10);
-  date = date || '';
-  sort = sort || 'createdAt';
-  var filledFilter = ['location', 'type', 'payment'];
-  var filter = {};
-  order = order || 'desc';
-  let dataJson = { response: res, message: '' };
-  let pagination = { page, limit };
-  var route = 'search?';
-  var searchParam = '';
-  if (search) {
-    searchParam = `search=${search}`;
-  }
-  if (date) {
-    searchParam = `date=${date}`;
-  }
-  filledFilter.forEach((item) => {
-    if (req.query[item]) {
-      filter[item] = req.query[item];
-      if (searchParam == '') {
-        searchParam += `${item}=${filter[item]}`;
-      } else {
-        searchParam += `&${item}=${filter[item]}`;
-      }
+  try {
+    let { search, page, limit, date, sort, order } = req.query;
+    search = search || '';
+    page = ((page != null && page !== '') ? parseInt(page) : 1);
+    limit = ((limit != null && limit !== '') ? parseInt(limit) : 10);
+    date = date || '';
+    sort = sort || 'createdAt';
+    var filledFilter = ['location', 'type', 'payment'];
+    var filter = {};
+    order = order || 'desc';
+    let dataJson = { response: res, message: '' };
+    let pagination = { page, limit };
+    var route = 'search?';
+    var searchParam = '';
+    if (search) {
+      searchParam = `search=${search}`;
     }
-  });
-  route += searchParam;
-  if (getValid.validationPagination(pagination) == null) {    
-    const offset = (page - 1) * limit;
-    const data = { search, filter, limit, offset, date, sort, order};
-    var dataSearch = await vehicleModel.getVehiclesSearch(data);
-    dataSearch.forEach((item) => {
-      if (item.start_rent !== null && item.end_rent) {
-        item.start_rent = moment(item.start_rent).format('DD MMM YYYY');
-        item.end_rent = moment(item.end_rent).format('DD MMM YYYY');
+    if (date) {
+      searchParam = `date=${date}`;
+    }
+    filledFilter.forEach((item) => {
+      if (req.query[item]) {
+        filter[item] = req.query[item];
+        if (searchParam == '') {
+          searchParam += `${item}=${filter[item]}`;
+        } else {
+          searchParam += `&${item}=${filter[item]}`;
+        }
       }
     });
-    try {
-      if (dataSearch.length > 0) {
-        var result = await vehicleModel.countVehiclesSearch(data);
-        const { total } = result[0];
-        pagination = {...pagination, total: total, route: route };
-        dataJson = {...dataJson, message: 'List Data Search.', result: dataSearch, pagination };
-        return getAPI.showSuccessWithPagination(dataJson, pagination);
-      } else{
-        dataJson = {...dataJson, message: 'Data not found', status: 404 };
+    route += searchParam;
+    if (getValid.validationPagination(pagination) == null) {    
+      const offset = (page - 1) * limit;
+      const data = { search, filter, limit, offset, date, sort, order};
+      var dataSearch = await vehicleModel.getVehiclesSearch(data);
+      dataSearch.forEach((item) => {
+        if (item.start_rent !== null && item.end_rent) {
+          item.start_rent = moment(item.start_rent).format('DD MMM YYYY');
+          item.end_rent = moment(item.end_rent).format('DD MMM YYYY');
+        }
+      });
+      try {
+        if (dataSearch.length > 0) {
+          var result = await vehicleModel.countVehiclesSearch(data);
+          const { total } = result[0];
+          pagination = {...pagination, total: total, route: route };
+          dataJson = {...dataJson, message: 'List Data Search.', result: dataSearch, pagination };
+          return getAPI.showSuccessWithPagination(dataJson, pagination);
+        } else{
+          dataJson = {...dataJson, message: 'Data not found', status: 404 };
+          return getAPI.showError(dataJson);
+        }
+      } catch(e) {
+        dataJson = {...dataJson, message: 'Data failed ', status: 500, error: e };
         return getAPI.showError(dataJson);
       }
-    } catch(e) {
-      dataJson = {...dataJson, message: 'Data failed ', status: 500, error: e };
-      return getAPI.showError(dataJson);
+    } else {
+      dataJson = { response: res, message: 'Pagination was not valid.', error: getValid.validationPagination(pagination), status: 400 };
+      getAPI.showError(dataJson);
     }
-  } else {
-    dataJson = { response: res, message: 'Pagination was not valid.', error: getValid.validationPagination(pagination), status: 400 };
-    getAPI.showError(dataJson);
+  } catch (e) {
+    return response(res, 'Error', null, 500);
   }
 };
 
