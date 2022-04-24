@@ -71,9 +71,9 @@ const detailHistory = (req, res)=>{
 
 const detailHistoryUser = (req, res)=>{
   const dataID = parseInt(req.params.id);
-  if (isNaN(dataID)===true){
-    return response(res, 'Data ID must be Number', null, 400);
-  }
+  // if (isNaN(dataID)===true){
+  //   return response(res, 'Data ID must be Number', null, 400);
+  // }
   historyModel.detailHistory(dataID, (results) => {
     if (results.length > 0){
       return response(res, 'List Detail User', results, 200);
