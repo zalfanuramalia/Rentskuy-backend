@@ -30,8 +30,8 @@ const dataHistory = (req, res) => {
           message: 'Data History',
           result,
           pageInfo: {
-            prev: page > 1 ? `http://localhost:5000/history?page=${page-1}`: null,
-            next: page < last ? `http://localhost:5000/history?page=${page+1}`: null,
+            prev: page > 1 ? `https://rentskuy.herokuapp.com/history?page=${page-1}`: null,
+            next: page < last ? `https://rentskuy.herokuapp.com/history?page=${page+1}`: null,
             totalData:total,
             currentPage: page,
             lastPage: last
@@ -42,8 +42,8 @@ const dataHistory = (req, res) => {
           success: false,
           message: 'You must input correctly',
           pageInfo: {
-            prev: page > 1 ? `http://localhost:8080/history?page=${page-1}`: null,
-            next: page < last ? `http://localhost:8080/history?page=${page+1}`: null,
+            prev: page > 1 ? `https://rentskuy.herokuapp.com/history?page=${page-1}`: null,
+            next: page < last ? `https://rentskuy.herokuapp.com/history?page=${page+1}`: null,
             totalData:total,
             currentPage: page,
             lastPage: last
@@ -110,8 +110,8 @@ const popularVehicles = (req, res) => {
           message: 'Most Popular Vehicles',
           results: processedResult,
           pageInfo: {
-            prev: page > 1 ? `http://localhost:5000/history/vehicles?page=${page-1}`: null,
-            next: page < last ? `http://localhost:5000/history/vehicles?page=${page+1}`: null,
+            prev: page > 1 ? `https://rentskuy.herokuapp.com/history/vehicles?page=${page-1}`: null,
+            next: page < last ? `https://rentskuy.herokuapp.com/history/vehicles?page=${page+1}`: null,
             totalData:total,
             currentPage: page,
             lastPage: last

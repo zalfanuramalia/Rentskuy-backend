@@ -32,8 +32,8 @@ const dataUsers = (req, res) => {
           message: 'Data Users',
           result,
           pageInfo: {
-            prev: page > 1 ? `http://localhost:3000/history?page=${page-1}`: null,
-            next: page < last ? `http://localhost:3000/history?page=${page+1}`: null,
+            prev: page > 1 ? `https://rentskuy.herokuapp.com/history?page=${page-1}`: null,
+            next: page < last ? `https://rentskuy.herokuapp.com/history?page=${page+1}`: null,
             totalData:total,
             currentPage: page,
             lastPage: last

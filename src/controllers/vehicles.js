@@ -290,22 +290,6 @@ const vehiclesCategory = (req, res) => {
   limit = parseInt(limit) || 4;
   tool = tool || 'price';
   sort = sort || '' ;
-  // var filledFilter = [ 'type', 'payment'];
-  // var filter = {};
-  // var searchParam = '';
-  // if (date) {
-  //   searchParam = `date=${date}`;
-  // }
-  // filledFilter.forEach((item) => {
-  //   if (req.query[item]) {
-  //     filter[item] = req.query[item];
-  //     if (searchParam == '') {
-  //       searchParam += `${item}=${filter[item]}`;
-  //     } else {
-  //       searchParam += `&${item}=${filter[item]}`;
-  //     }
-  //   }
-  // });
   const offset = (page - 1) * limit;
   const data = { search, limit, offset, tool, sort};
   if(data.limit < 0 && data.page < 0){
@@ -321,7 +305,7 @@ const vehiclesCategory = (req, res) => {
   vehicleModel.vehiclesCategory(data, category, results => {
     const processedResult = results.map((obj) => {
       if(obj.image !== null){
-        obj.image = `${APP_URL}/${obj.image}`;
+        obj.image = `${obj.image}`;
       }
       return obj;
     });
@@ -334,8 +318,8 @@ const vehiclesCategory = (req, res) => {
           message: 'Data Category',
           results: processedResult,
           pageInfo: {
-            prev: page > 1 ? `http://localhost:8080/vehicles/category/:category_id?page=${page-1}`: null,
-            next: page < last ? `http://localhost:8080/vehicles/category/:category_id?page=${page+1}`: null,
+            prev: page > 1 ? `https://rentskuy.herokuapp.com/vehicles/category/:category_id?page=${page-1}`: null,
+            next: page < last ? `https://rentskuy.herokuapp.com/vehicles/category/:category_id?page=${page+1}`: null,
             totalData:total,
             currentPage: page,
             lastPage: last
@@ -385,8 +369,8 @@ const vehiclesOnLocation = (req, res) => {
           message: 'Data Category',
           results: processedResult,
           pageInfo: {
-            prev: page > 1 ? `http://localhost:8080/vehicles?page=${page-1}`: null,
-            next: page < last ? `http://localhost:8080/vehicles?page=${page+1}`: null,
+            prev: page > 1 ? `https://rentskuy.herokuapp.com/vehicles?page=${page-1}`: null,
+            next: page < last ? `https://rentskuy.herokuapp.com/vehicles?page=${page+1}`: null,
             totalData:total,
             currentPage: page,
             lastPage: last
