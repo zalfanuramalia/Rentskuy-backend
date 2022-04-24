@@ -22,27 +22,27 @@ exports.dataUser = (id) => new Promise ((resolve, reject) => {
 });
 
 exports.postUser = (data2) => new Promise ((resolve, reject) => {
-  db.query(`INSERT INTO users (name, identity, gender, email, address, number, birthdate, username, password) VALUES 
-  ('${data2.name}', '${data2.identity}', '${data2.gender}', '${data2.email}', '${data2.address}', '${data2.number}', '${data2.birthdate}', '${data2.username}', '${data2.password}')`,
+  db.query(`INSERT INTO users (name, identity, gender, email, address, number, birthdate, username, password, image, role) VALUES 
+  ('${data2.name}', '${data2.identity}', '${data2.gender}', '${data2.email}', '${data2.address}', '${data2.number}', '${data2.birthdate}', '${data2.username}', '${data2.password}', '${data2.image}', '${data2.role}')`,
   (err, res) => {
     if (err) reject (err);
     resolve(res);
   });
 });
 
-exports.getPostUser = () => new Promise ((resolve, reject) => {
-  db.query('SELECT * FROM users ORDER BY id DESC LIMIT 1', (err, res) => {
+exports.getPostUser = (email) => new Promise ((resolve, reject) => {
+  db.query('SELECT * FROM users WHERE email = ?',[email], (err, res) => {
     if (err) reject (err);
     resolve(res);
   });
 });
 
-exports.delUser = (id, cb) => {
+exports.delUser = (id) => new Promise ((resolve, reject) => {
   db.query('DELETE FROM users WHERE id = ?',[id], (error, res) => {
-    if (error) throw error;
-    cb(res);
+    if (error) reject (error);
+    resolve(res);
   });
-};
+});
 
 exports.patchUser = (data, id) => new Promise ((resolve, reject) =>{
   db.query('UPDATE `users` SET ? WHERE id=?', [data, id], (error, res) => {

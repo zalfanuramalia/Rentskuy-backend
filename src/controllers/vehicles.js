@@ -117,7 +117,7 @@ const delVehicle = async (req, res) => {
           } else { 
             fs.rm(dataVehicles[0].image, {}, function(err) {
               if (err) {
-                return response(res, 'File image not found!', null, 500);
+                return response(res, 'File image not found!', null, 404);
               }
             });
           }

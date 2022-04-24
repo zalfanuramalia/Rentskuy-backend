@@ -1,9 +1,10 @@
 const userModel = require('../models/users');
 const bcrypt = require('bcrypt');
-const upload = require('../helpers/upload');
-const {APP_URL} = process.env;
+const upload = require('../helpers/upload').single('image');
 const response = require('../helpers/response');
 var validator = require('validator');
+const fs = require('fs');
+const { cloudPath, imageDeleted } = require('../helpers/imageDeleted');
 
 const dataUsers = (req, res) => {
   let {search, page, limit } = req.query;
@@ -60,103 +61,134 @@ const dataUser = (req, res) => {
 };
 
 const postUser = async (req, res) => {
-  upload(req, res, async function(err){
-    if (err){
-      return response(res, err.message,  null, 400);
-    }
-    const { name, identity, gender, email, address, number, birthdate, username, password: rawPassword } = req.body;
-    const {id} = res.length + 1;
-    const salt = await bcrypt.genSalt(10);
-    const passwords = await bcrypt.hash(rawPassword, salt);
-    const data = { name, identity, gender, email, address, number, birthdate, username, passwords};
-    if(req.file){
-      data.image = `uploads/${req.file.filename}`;
-    }
-    if(isNaN(identity)===true){
-      return response(res, 'Identity must be number!', null, 400);
-    }
-    const result = await userModel.postUser({id, data});
-    const get = await userModel.getPostUser();
-    if (result.affectedRows >= 1){
-      return response(res, 'Data User Posted', get, 200);
-    } else {
-      return response(res, 'Data not Posted', null, 500);
-    }
-  });
+  try {
+    req.fileUpload = 'users';
+    upload(req, res, async function(err){      
+      const { name, identity, gender, email, address, number, birthdate, username, password: rawPassword, image, role } = req.body;
+      const salt = await bcrypt.genSalt(10);
+      const password = await bcrypt.hash(rawPassword, salt);
+      const data = { name, identity, gender, email, address, number, birthdate, username, password, image, role};
+      if(req.file){
+        var imageTemp = req.file.path;
+        data.image = imageTemp.replace('\\', '/');
+      }
+      if (err){
+        return response(res, err.message,  null, 400);
+      }
+      if(isNaN(identity)===true){
+        return response(res, 'Identity must be number!', null, 400);
+      }
+      const result = await userModel.postUser(data);
+      const get = await userModel.getPostUser(email);
+      if (result.affectedRows >= 1){
+        
+        const mapResults = get.map(o => {
+          if(o.image!== null){
+            o.image = `${o.image}`;
+          }
+          return o;
+        });
+        return response(res, 'Data User Posted', mapResults[0], 200);
+      } else {
+        return response(res, 'Data not Posted', null, 500);
+      }
+    });
+  } catch (e) {
+    return response(res, e.message, null, 500);
+  }
 };
 
-const delUser = (req, res) => {
-  const dataID = parseInt(req.params.id);
-  if (isNaN(dataID)===true){
-    return response(res, 'Data ID must be Number', null, 400);
-  }   
-  const process = (result) => {
-    if (result.affectedRows == 1){
-      const ress = (result) =>{
-        if(result.length > 0){
-          return response(res, 'User failed to Delete', result, 500);
+const delUser = async (req, res) => {
+  try {
+    upload(req, res, async function () {
+      const dataID = parseInt(req.params.id);
+      if (isNaN(dataID)===true){
+        return response(res, 'Data ID must be Number', null, 400);
+      }
+      const process = await userModel.dataUser(dataID);
+      if (process.length > 0) {
+        if (process[0].image !== null) {
+          const fileName = cloudPath(process[0].image);
+          await imageDeleted(fileName);
         } else {
-          return response(res, 'User was Delete', result, 200);
+          fs.rm(process[0].image, {}, function(err) {
+            if (err) {
+              return response(res, 'File image not found!', null, 404);
+            }
+          });
         }
-      };
-      userModel.delUser( dataID, ress);
-    } else {
-      return response(res, 'There is no User with that ID ', null, 404);
-    }
-  };
-  userModel.delUser(dataID, process);
+        const ress = await userModel.delUser(dataID);
+        if(ress.affectedRows > 0) {
+          return response(res, 'User was Delete', process, 200);
+        } else {
+          return response(res, 'User data failed to delete!', null, 500);
+        }
+      } else {
+        return response(res, 'Data not Found', null, 404);
+      }
+    });
+  } catch (e) {
+    return response(res, e.message, null, 500);
+  }
 };
 
 const patchUser = async (req, res)=>{
-  upload (req, res, async function(err){
-    if (err){
-      return response(res, err.message,  null, 400);
-    }
-    const dataID = parseInt(req.params.id);
-    if (isNaN(dataID)===true){
-      return response(res, 'Data ID must be Number', null, 400);
-    }
-    const result = await userModel.dataUser(dataID);
-    if (result.length >= 1) {
-      const data = {    };
-      const fillable = ['name', 'gender','email', 'address','number', 'birthdate'];
-      fillable.forEach(field => {
-        if (req.body[field]) {
-          return data[field] = req.body[field]; // data.qty = req.body.qty
-        }
-      });
+  try {
+    req.fileUpload = 'users';
+    upload (req, res, async function(err){
       
-      if(req.file){
-        data.image = `uploads/${req.file.filename}`;
+      const dataID = parseInt(req.params.id);
+      if (isNaN(dataID)===true){
+        return response(res, 'Data ID must be Number', null, 400);
       }
-      console.log(req.body, req.file);
-      console.log(data);
-      
-      const em = validator.isEmail(data.email);
-      if (em < 1){
-        return response(res, 'Enter email correctly', null, 400);
-      }
-      try {
-        const resultUpdate = await userModel.patchUser(data, dataID);
-        if (resultUpdate.affectedRows) {
-          const fetchNew = await userModel.dataUser(dataID);
-          console.log(fetchNew);
-          const mapResults = fetchNew.map(o => {
-            if(o.image!== null){
-              o.image = `${APP_URL}/${o.image}`;
-            }
-            return o;
-          });
-          return response(res, 'Update Data Success!', mapResults[0], 200);
+      const result = await userModel.dataUser(dataID);
+      if (result.length >= 1) {
+        const data = {    };
+        const fillable = ['name', 'gender','email', 'address','number', 'birthdate'];
+        fillable.forEach(field => {
+          if (req.body[field]) {
+            return data[field] = req.body[field]; // data.qty = req.body.qty
+          }
+        });
+        
+        if(req.file){
+          var imageTemp = req.file.path;
+          data.image = imageTemp.replace('\\', '/');
         }
-      } catch (err) {
-        // console.log(err);
-        return response(res, 'Unexpected Error', null, 500);
+
+        if (err){
+          return response(res, err.message,  null, 400);
+        }
+        
+        if (data.email) {
+          const em = validator.isEmail(data.email);
+          if (!em){
+            return response(res, 'Enter email correctly', null, 400);
+          }
+        }
+        try {
+          const resultUpdate = await userModel.patchUser(data, dataID);
+          if (resultUpdate.affectedRows) {
+            const fetchNew = await userModel.dataUser(dataID);
+            console.log(fetchNew);
+            const mapResults = fetchNew.map(o => {
+              if(o.image!== null){
+                o.image = `${o.image}`;
+              }
+              return o;
+            });
+            return response(res, 'Update Data Success!', mapResults[0], 200);
+          }
+        } catch (err) {
+          return response(res, 'Unexpected Error', null, 500);
+        }
+      } else {
+        return response(res, 'Unexpected data', null, 400);
       }
-    } else {
-      return response(res, 'Unexpected data', null, 400);
-    }
-  });
+    });
+  } catch (e) {
+    return response(res, e.message, null, 500);
+  }
 };
 
 
