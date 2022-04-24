@@ -88,7 +88,7 @@ const getVehicle = (req, res)=>{
   vehicleModel.getVehicle(dataID, results => {
     const processedResult = results.map((obj) => {
       if(obj.image !== null){
-        obj.image = `${APP_URL}/${obj.image}`;
+        obj.image = `${obj.image}`;
       }
       return obj;
     });

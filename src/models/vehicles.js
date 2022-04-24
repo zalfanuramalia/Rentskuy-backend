@@ -1,5 +1,4 @@
 const db = require ('../helpers/database');
-const { APP_URL } = process.env;
 
 exports.vehiclesOnLocation = (data, location, cb) => {
   db.query(`SELECT v.*, c.name as type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE v.location = ? && brand LIKE '%${data.search}%'  ORDER BY v.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`,
@@ -40,7 +39,7 @@ exports.getVehiclesSearch = (data) => new Promise ((resolve, reject) => {
       resultFillter += ` and ${item}='${data.filter[item]}'`;
     }
   });
-  const query = db.query(`SELECT v.*, concat('${APP_URL}/',v.image) as image, c.name AS type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE v.brand LIKE '%${data.search}%' ${resultFillter} ${data.date!=='' ? `and h.start_rent = '${data.date}' or h.end_rent='${data.date}'` : ''} order by ${data.sort} ${data.order} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+  const query = db.query(`SELECT v.*, image, c.name AS type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id WHERE v.brand LIKE '%${data.search}%' ${resultFillter} ${data.date!=='' ? `and h.start_rent = '${data.date}' or h.end_rent='${data.date}'` : ''} order by ${data.sort} ${data.order} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
     if (err) reject(err);
     resolve(res);
   });
