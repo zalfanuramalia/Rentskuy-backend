@@ -16,14 +16,14 @@ exports.countHistory = (data, cb) => {
 };
 
 exports.detailHistory = (id_users, cb) => {
-  db.query('SELECT h.id, u.name as userFullName, h.id_users AS usersId, image, v.brand as vehicleName, h.id_vehicles AS vehiclesId, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id_users = ? ORDER BY h.id DESC',[id_users], (err, res) => {
+  db.query('SELECT h.id, u.name as userFullName, h.id_users AS usersId, v.image, v.brand as vehicleName, h.id_vehicles AS vehiclesId, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id_users = ? ORDER BY h.id DESC',[id_users], (err, res) => {
     if (err) throw err;
     cb(res);
   });
 };
 
 exports.detailHistoryUser = (id, cb) => {
-  db.query('SELECT h.id, u.name as userFullName, h.id_users AS usersId, image, v.brand as vehicleName, h.id_vehicles AS vehiclesId, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id_users = ? ORDER BY h.id DESC',[id], (err, res) => {
+  db.query('SELECT h.id, u.name as userFullName, h.id_users AS usersId, v.image, v.brand as vehicleName, h.id_vehicles AS vehiclesId, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id_users = ? ORDER BY h.id DESC',[id], (err, res) => {
     if (err) throw err;
     cb(res);
   });
