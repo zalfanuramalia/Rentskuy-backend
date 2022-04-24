@@ -1,7 +1,7 @@
 const db = require ('../helpers/database');
 
 exports.dataHistory = (data, cb) => {
-  db.query(`SELECT h.id, h.id_users, u.name as userFullName, v.brand as vehicleName, image, start_rent, v.qty AS Quantity, v.price AS Price, v.price*50/100 AS minPrepayment, v.location AS Location, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE v.brand LIKE '%${data.search}%' ORDER BY h.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+  db.query(`SELECT h.id, h.id_users, u.name as userFullName, v.brand as vehicleName, v.image, start_rent, v.qty AS Quantity, v.price AS Price, v.price*50/100 AS minPrepayment, v.location AS Location, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE v.brand LIKE '%${data.search}%' ORDER BY h.${data.tool} ${data.sort} LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
     if (err) throw err;
     cb(res);
   });
@@ -15,14 +15,14 @@ exports.countHistory = (data, cb) => {
 };
 
 exports.detailHistory = (id_users, cb) => {
-  db.query('SELECT h.id, u.name as userFullName, h.id_users AS usersId, v.image, v.brand as vehicleName, h.id_vehicles AS vehiclesId, v.price AS price, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id_users = ? ORDER BY h.id DESC',[id_users], (err, res) => {
+  db.query('SELECT h.id, u.name as userFullName, h.id_users AS usersId, v.image, v.brand as vehicleName, h.id_vehicles AS vehiclesId, v.price AS Price, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id_users = ? ORDER BY h.id DESC',[id_users], (err, res) => {
     if (err) throw err;
     cb(res);
   });
 };
 
 exports.detailHistoryUser = (id, cb) => {
-  db.query('SELECT h.id, u.name as userFullName, h.id_users AS usersId, v.image, v.brand as vehicleName, h.id_vehicles AS vehiclesId, v.price AS price, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id_users = ? ORDER BY h.id DESC',[id], (err, res) => {
+  db.query('SELECT h.id, u.name as userFullName, h.id_users AS usersId, v.image, v.brand as vehicleName, h.id_vehicles AS vehiclesId, v.price AS Price, start_rent, h.returned FROM history h LEFT JOIN users u ON h.id_users = u.id LEFT JOIN vehicles v ON h.id_vehicles = v.id WHERE h.id_users = ? ORDER BY h.id DESC',[id], (err, res) => {
     if (err) throw err;
     cb(res);
   });
