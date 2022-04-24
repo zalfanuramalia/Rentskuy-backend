@@ -62,7 +62,7 @@ exports.countVehiclesSearch = (data) => new Promise ((resolve, reject) => {
   
 
 exports.getVehicle = (id, cb) => {
-  db.query('SELECT * FROM vehicles WHERE id = ?',[id], (err, res) => {
+  db.query('SELECT v.*, image, c.name AS type FROM vehicles v LEFT JOIN category c ON v.category_id=c.id FROM vehicles WHERE id = ?',[id], (err, res) => {
     if (err) throw err;
     cb(res);
   });
