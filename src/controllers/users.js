@@ -2,7 +2,7 @@ const userModel = require('../models/users');
 const bcrypt = require('bcrypt');
 const upload = require('../helpers/upload').single('image');
 const response = require('../helpers/response');
-var validator = require('validator');
+// var validator = require('validator');
 const fs = require('fs');
 const { cloudPath, imageDeleted } = require('../helpers/imageDeleted');
 
@@ -160,12 +160,12 @@ const patchUser = async (req, res)=>{
           return response(res, err.message,  null, 400);
         }
         
-        if (data.email) {
-          const em = validator.isEmail(data.email);
-          if (!em){
-            return response(res, 'Enter email correctly', null, 400);
-          }
-        }
+        // if (data.email) {
+        //   const em = validator.isEmail(data.email);
+        //   if (!em){
+        //     return response(res, 'Enter email correctly', null, 400);
+        //   }
+        // }
         try {
           const resultUpdate = await userModel.patchUser(data, dataID);
           if (resultUpdate.affectedRows) {
