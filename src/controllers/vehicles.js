@@ -5,6 +5,9 @@ const getAPI = require('../helpers/getAPI');
 const moment = require('moment');
 const upload = require('../helpers/upload').single('image');
 const response = require('../helpers/response');
+const verified = require ('../helpers/auth');
+// const verify = require('../helpers/auth');
+// const {imageDeleted, cloudPath} = require('../helpers/imageDeleted');
 
 const getVehicles = async (req, res)=>{
   try {
@@ -119,51 +122,54 @@ const delVehicle = (req, res) => {
 };
 
 const postVehicle = async (req, res) => {
-  upload(req, res, async function(err){
-    if (err){
-      return response(res, err.message,  null, 400);
-    }
-    try {
-      const data1 = {  };
-      const fillable = ['brand', 'price','description', 'location','category_id', 'qty'];
-      fillable.forEach(field => {
-        if (req.body[field]) {
-          return data1[field] = req.body[field]; // data.qty = req.body.qty
-        }
-      });
-      if(req.file){
-        data1.image = `uploads/${req.file.filename}`;
-      }
-      if(isNaN(data1.price)===true && isNaN(data1.qty)===true){
-        return response(res, 'Price and Quantity Data must be Number!',  null, 400);
-      }
-      if(isNaN(data1.price)===true){
-        return response(res, 'Price Data must be Number!',  null, 400);
-      }
-      if(isNaN(data1.qty)===true){
-        return response(res, 'Quantity Data must be Number!', null, 400);
-      }
-      if(isNaN(data1.category_id)===true){
-        return response(res, 'ID category must be Number!', null, 400);
-      }
-      const results = await vehicleModel.postVehicle(data1);
-      if (results.affectedRows == 1){
-        const fin = await vehicleModel.getPostVehicle(results.insertId);
-        const mapResults = fin.map(o => {
-          if(o.image!== null){
-            o.image = `${APP_URL}/${o.image}`;
+  try {
+    upload(req, res, async function(err){     
+      verified.adminVerify(req, res, async () => {
+        const data1 = {  };
+        const fillable = ['brand', 'price','description', 'location','category_id', 'qty'];
+        fillable.forEach(field => {
+          if (req.body[field]) {
+            return data1[field] = req.body[field]; // data.qty = req.body.qty
           }
-          return o;
         });
-        return response(res, 'Vehicle data created!', mapResults[0], 200);
-      } else {
-        return response(res, 'Unexpected Data', null, 404);
-      }
-    } catch (e) {
-      return response(res, 'Unexpected Error', null, 500);
-      // console.log(e);
-    }
-  });
+        if(isNaN(data1.price)===true && isNaN(data1.qty)===true){
+          return response(res, 'Price and Quantity Data must be Number!',  null, 400);
+        }
+        if(isNaN(data1.price)===true){
+          return response(res, 'Price Data must be Number!',  null, 400);
+        }
+        if(isNaN(data1.qty)===true){
+          return response(res, 'Quantity Data must be Number!', null, 400);
+        }
+        if(isNaN(data1.category_id)===true){
+          return response(res, 'ID category must be Number!', null, 400);
+        }
+        
+        if(req.file){
+          data1.image = `uploads/${req.file.filename}`;
+        }
+
+        if (err){
+          return response(res, err.message,  null, 400);
+        }
+        const results = await vehicleModel.postVehicle(data1);
+        if (results.affectedRows == 1){
+          const fin = await vehicleModel.getPostVehicle(results.insertId);
+          const mapResults = fin.map(o => {
+            if(o.image!== null){
+              o.image = `${APP_URL}/${o.image}`;
+            }
+            return o;
+          });
+          return response(res, 'Vehicle data created!', mapResults[0], 200);
+        } else {
+          return response(res, 'Unexpected Data', null, 404);
+        }
+      });   
+    });
+  } catch (err) {
+    return response(res, err.message, null, 500);
+  }
 };
 
 const patchVehicle = (req, res)=>{

@@ -36,7 +36,7 @@ exports.adminVerify = (req, res, next) => {
       try {
         const payload = jwt.verify(token, APP_SECRET);
         req.user = payload;
-        if(payload.role=='Admin'){
+        if(payload.role==='Admin'){
           if (jwt.verify(token, APP_SECRET)) {
             return next();
           } else {

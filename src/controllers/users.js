@@ -1,6 +1,6 @@
 const userModel = require('../models/users');
 const bcrypt = require('bcrypt');
-const upload = require('../helpers/upload').single('image');
+const upload = require('../helpers/upload');
 const {APP_URL} = process.env;
 const response = require('../helpers/response');
 var validator = require('validator');

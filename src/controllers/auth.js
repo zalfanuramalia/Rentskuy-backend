@@ -8,19 +8,24 @@ const { APP_SECRET, APP_EMAIL } = process.env;
 
 
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
-  const result = await userModel.userByUsername(email);
-  if(result.length > 0){
-    const {password: hash} = result[0];
-    const fin = await bcrypt.compare(password, hash);
-    if(fin){
-      const token = jwt.sign({id: result[0].id}, APP_SECRET);
-      return response(res, 'Login Success!', {token}, 200);
+  try {
+    const { email, password } = req.body;
+    const result = await userModel.userByUsername(email, null);
+    if(result.length > 0){
+      const {password: hash} = result[0];
+      const fin = await bcrypt.compare(password, hash);
+      if(fin){
+        const data = { id: result[0].id, role: result[0].role };
+        const token = jwt.sign(data, APP_SECRET);
+        return response(res, 'Login Success!', {token}, 200);
+      } else {
+        return response(res, 'Wrong username or password!', null, 401);
+      }
     } else {
       return response(res, 'Wrong username or password!', null, 401);
     }
-  } else {
-    return response(res, 'Wrong username or password!', null, 401);
+  } catch (e) {
+    return response(res, e.message, null, 500);
   }
 };
 
