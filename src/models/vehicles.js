@@ -106,19 +106,19 @@ exports.updateVehicleAsync = (data, id) => new Promise((resolve, reject)=> {
 });
 
 
-exports.delVehicle = (id, cb) => {
+exports.delVehicle = (id) => new Promise ((resolve, reject) => {
   db.query('DELETE FROM vehicles WHERE id = ?',[id], (error, res) => {
-    if (error) throw error;
-    cb(res);
+    if (error) reject (error);
+    resolve(res);
   });
-};
+});
 
-exports.getDelVehicle = (dataID, cb) => {
+exports.getDelVehicle = (dataID) => new Promise ((resolve, reject) => {
   db.query('SELECT * FROM vehicles WHERE id = ?',[dataID], (err, res) => {
-    if (err) throw err;
-    cb(res);
+    if (err) reject (err);
+    resolve(res);
   });
-};
+});
 
 exports.postVehicle = (data1) => new Promise ((resolve, reject) => {
   db.query(`INSERT INTO vehicles (category_id, brand, image, price, location, qty, description) VALUES ('${data1.category_id}','${data1.brand}', '${data1.image}','${data1.price}','${data1.location}','${data1.qty}','${data1.description}')`,

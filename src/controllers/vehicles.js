@@ -6,6 +6,8 @@ const moment = require('moment');
 const upload = require('../helpers/upload').single('image');
 const response = require('../helpers/response');
 const verified = require ('../helpers/auth');
+const { cloudPath, imageDeleted } = require('../helpers/imageDeleted');
+const fs = require('fs');
 // const verify = require('../helpers/auth');
 // const {imageDeleted, cloudPath} = require('../helpers/imageDeleted');
 
@@ -99,30 +101,45 @@ const getVehicle = (req, res)=>{
   });
 };
 
-const delVehicle = (req, res) => {
-  const dataID = parseInt(req.params.id) || null;
-  if (isNaN(dataID)===true){
-    return response(res, 'Data ID must be Number', null, 400);
-  }
-  vehicleModel.getDelVehicle(dataID, (result) => {
-    vehicleModel.delVehicle(dataID, () => {
-      if (result.affectedRows !== 1){
-        vehicleModel.delVehicle(dataID, () => {
-          if(result.length > 0){
-            return response(res, 'Vehicle Data Success Deleted', result, 200);
-          } else {
-            return response(res, 'Vehicle Data not Found', null, 404);
+const delVehicle = async (req, res) => {
+  try {
+    upload(req, res, async function () {
+      verified.adminVerify(req, res, async function () {
+        const dataID = parseInt(req.params.id) || null;
+        if (isNaN(dataID)===true){
+          return response(res, 'Data ID must be Number', null, 400);
+        }
+        const dataVehicles = await vehicleModel.getDelVehicle(dataID);
+        if (dataVehicles.length > 0) {
+          if (dataVehicles[0].image !== null) {
+            const fileName = cloudPath(dataVehicles[0].image);
+            await imageDeleted(fileName);
+          } else { 
+            fs.rm(dataVehicles[0].image, {}, function(err) {
+              if (err) {
+                return response(res, 'File image not found!', null, 500);
+              }
+            });
           }
-        });
-      } else {
-        return response(res, 'Vehicle Data failed to Delete', null, 500);
-      }
+          const result = await vehicleModel.delVehicle(dataID);
+          if (result.affectedRows > 0) {
+            return response(res, 'Vehicle Data Success Deleted', dataVehicles, 200);
+          } else {
+            return response(res, 'Vehicle Data failed to Delete', null, 500);
+          }
+        } else {
+          return response(res, 'Data not Found', null, 404);
+        }
+      });
     });
-  });
+  } catch (err) {
+    return response(res, err.message, null, 500);
+  }
 };
 
 const postVehicle = async (req, res) => {
   try {
+    req.fileUpload = 'vehicles';
     upload(req, res, async function(err){     
       verified.adminVerify(req, res, async () => {
         const data1 = {  };
@@ -146,7 +163,8 @@ const postVehicle = async (req, res) => {
         }
         
         if(req.file){
-          data1.image = `uploads/${req.file.filename}`;
+          var imageTemp = req.file.path;
+          data1.image = imageTemp.replace('\\', '/');
         }
 
         if (err){
@@ -157,7 +175,7 @@ const postVehicle = async (req, res) => {
           const fin = await vehicleModel.getPostVehicle(results.insertId);
           const mapResults = fin.map(o => {
             if(o.image!== null){
-              o.image = `${APP_URL}/${o.image}`;
+              o.image = `${o.image}`;
             }
             return o;
           });
@@ -173,61 +191,67 @@ const postVehicle = async (req, res) => {
 };
 
 const patchVehicle = (req, res)=>{
-  upload(req, res, function(err){
-    if (err){
-      return response(res, err.message,  null, 400);
-    }
-    const dataID = parseInt(req.params.id);
-    if (isNaN(dataID)===true){
-      return response(res, 'Data ID must be Number', null, 400);
-    }
-    vehicleModel.getPatchVehicle(dataID, (result) => {
-      console.log(result);
-      if (result.length >=1){
-        const data = {    };
-        // data["discount"] == data.discount
-        const fillable = ['category_id', 'brand','price', 'image', 'location','qty', 'can_prepayment', 'isAvailable'];
-        fillable.forEach(field => {
-          if (req.body[field]) {
-            return data[field] = req.body[field]; // data.qty = req.body.qty
-          } 
-        });
-        console.log(data);
-        if(req.file){
-          data.image = `uploads/${req.file.filename}`;
-        }      
-        if((parseInt(data.price)===true || isNaN(data.price)===true) && (parseInt(data.qty)===true || isNaN(data.qty)===true)){
-          return response(res, 'Price and Quantity Data must be Filled or Number!',  null, 400);
-        }
-        if(parseInt(data.price)===true && isNaN(data.price)===true){
-          return response(res, 'Price Data must be Filled or Number!',  null, 400);
-        }
-        if(parseInt(data.qty)===true && isNaN(data.qty)===true){
-          return response(res, 'Quantity Data must be Filled or Number!', null, 400);
-        }
-        if(parseInt(data.category_id)===true && isNaN(data.category_id)===true){
-          return response(res, 'ID category must be Filled or Number!', null, 400);
-        }
-        vehicleModel.patchVehicle(data, dataID, (result) =>{
-          if (result.affectedRows == 1){
-            vehicleModel.getPatchVehicle(dataID, (fin) =>{
-              const mapResult = fin.map(o => {
-                if(o.image!== null){
-                  o.image = `${APP_URL}/${o.image}`;
-                }
-                return o;
+  try {
+    req.fileUpload = 'vehicles';
+    upload(req, res, function(err){
+      if (err){
+        return response(res, err.message,  null, 400);
+      }
+      const dataID = parseInt(req.params.id);
+      if (isNaN(dataID)===true){
+        return response(res, 'Data ID must be Number', null, 400);
+      }
+      vehicleModel.getPatchVehicle(dataID, (result) => {
+        console.log(result);
+        if (result.length >=1){
+          const data = {    };
+          // data["discount"] == data.discount
+          const fillable = ['category_id', 'brand','price', 'image', 'location','qty', 'can_prepayment', 'isAvailable'];
+          fillable.forEach(field => {
+            if (req.body[field]) {
+              return data[field] = req.body[field]; // data.qty = req.body.qty
+            } 
+          });
+          console.log(data);
+          if(req.file){
+            var imageTemp = req.file.path;
+            data.image = imageTemp.replace('\\', '/');
+          }     
+          if((parseInt(data.price)===true || isNaN(data.price)===true) && (parseInt(data.qty)===true || isNaN(data.qty)===true)){
+            return response(res, 'Price and Quantity Data must be Filled or Number!',  null, 400);
+          }
+          if(parseInt(data.price)===true && isNaN(data.price)===true){
+            return response(res, 'Price Data must be Filled or Number!',  null, 400);
+          }
+          if(parseInt(data.qty)===true && isNaN(data.qty)===true){
+            return response(res, 'Quantity Data must be Filled or Number!', null, 400);
+          }
+          if(parseInt(data.category_id)===true && isNaN(data.category_id)===true){
+            return response(res, 'ID category must be Filled or Number!', null, 400);
+          }
+          vehicleModel.patchVehicle(data, dataID, (result) =>{
+            if (result.affectedRows == 1){
+              vehicleModel.getPatchVehicle(dataID, (fin) =>{
+                const mapResult = fin.map(o => {
+                  if(o.image!== null){
+                    o.image = `${o.image}`;
+                  }
+                  return o;
+                });
+                return response(res, 'Update Vehicle Data Success!', mapResult[0], 200);
               });
-              return response(res, 'Update Vehicle Data Success!', mapResult[0], 200);
-            });
-          } else {
-            return response(res, 'Unexpected Error!', null, 404);     
-          }   
-        });
-      } else {
-        return response(res, 'Unexpected Data', null, 404); 
-      }   
+            } else {
+              return response(res, 'Unexpected Error!', null, 404);     
+            }   
+          });
+        } else {
+          return response(res, 'Unexpected Data', null, 404); 
+        }   
+      });
     });
-  });
+  } catch (err) {
+    return response(res, err.message, null, 500);
+  }
 };
 
 const updateVehicle = async (req, res) => {
