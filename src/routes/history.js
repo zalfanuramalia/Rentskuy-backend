@@ -9,7 +9,7 @@ history.get('/vehicles', cors(), popularVehicles);
 history.get('/', cors(), dataHistory);
 history.get('/:id', cors(), detailHistory);
 history.get('/users/:id', cors(),  detailHistoryUser);
-history.post('/', cors(), userVerify, postHistory);
+history.post('/', userVerify, cors(), postHistory);
 history.delete('/:id', userVerify, cors(), delHistory);
 history.patch('/:id', userVerify, cors(), patchHistory);
 

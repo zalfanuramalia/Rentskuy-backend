@@ -187,7 +187,7 @@ const postHistory = (req, res) => {
       historyModel.getPostHistory( (result) => {
         const mapResults = result.map(o => {
           if(o.image!== null){
-            o.image = `${APP_URL}/${o.image}`;
+            o.image = `/${o.image}`;
           }
           return o;
         });
