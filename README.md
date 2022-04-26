@@ -86,4 +86,4 @@ Contains an Application Programming Interface (API) using Visual Studio Code app
 
 ## Deployment Backend
 
-www.heroku.com
+https://rentskuy.herokuapp.com
